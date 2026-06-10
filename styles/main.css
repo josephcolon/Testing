@@ -396,3 +396,136 @@ body {
   #app.split-mode .panel.split { border-left: none; border-top: 4px dashed rgba(255,255,255,0.5); }
   #app.split-mode .panel:first-child.split { border-top: none; }
 }
+
+/* ==========================================================================
+   v2 — Sago Mini-style scenes, mascots, speech bubbles, juicier feedback.
+   Rules below intentionally override earlier ones where they share selectors.
+   ========================================================================== */
+
+/* ---- Scene layering ---- */
+.scene-holder { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; }
+.scene, .scene-sky { width: 100%; height: 100%; display: block; }
+.panel { position: relative; }
+.panel > .topbar, .panel > .stage, .panel > .choices { position: relative; z-index: 1; }
+.home-scene { position: absolute; inset: 0; z-index: 0; pointer-events: none; opacity: 0.95; }
+.screen { position: relative; z-index: 1; }
+
+.cloud { animation: drift var(--dur, 44s) linear infinite; animation-delay: var(--delay, 0s); }
+@keyframes drift {
+  from { transform: translate(-90px, var(--y, 40px)) scale(var(--s, 1)); }
+  to   { transform: translate(470px, var(--y, 40px)) scale(var(--s, 1)); }
+}
+.sun { animation: sunpulse 6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@keyframes sunpulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+
+/* ---- Mascots ---- */
+.mascot { width: clamp(96px, 22vmin, 200px); flex: none; cursor: pointer; }
+.mascot .mascot-svg { width: 100%; height: 100%; overflow: visible; animation: bob 3s ease-in-out infinite; }
+.m-eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.5s infinite; }
+@keyframes blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  95% { transform: scaleY(0.1); }
+}
+.anim-bounce .mascot-svg { animation: mascot-bounce 0.6s ease; }
+.anim-shake  .mascot-svg { animation: mascot-shake 0.5s ease; }
+.anim-wave   .mascot-svg { animation: mascot-wave 1.6s ease-in-out infinite; }
+.anim-wave.delay .mascot-svg { animation-delay: 0.4s; }
+@keyframes mascot-bounce {
+  0% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-16%) scale(1.08); }
+  60% { transform: translateY(0) scale(0.97); }
+  100% { transform: translateY(0) scale(1); }
+}
+@keyframes mascot-shake {
+  0%,100% { transform: rotate(0); } 25% { transform: rotate(-7deg); } 75% { transform: rotate(7deg); }
+}
+@keyframes mascot-wave {
+  0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); }
+}
+
+/* ---- Stage: mascot + speech bubble ---- */
+.stage {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vmin, 20px);
+  padding: clamp(6px, 1.4vmin, 14px) clamp(12px, 3vmin, 28px);
+}
+.speech {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: clamp(6px, 1.4vmin, 14px);
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 26px;
+  padding: clamp(10px, 2vmin, 18px) clamp(14px, 2.6vmin, 24px);
+  box-shadow: var(--shadow);
+}
+/* little tail pointing at the mascot */
+.speech::before {
+  content: "";
+  position: absolute;
+  left: -14px; top: 50%;
+  transform: translateY(-50%);
+  border: 12px solid transparent;
+  border-right-color: rgba(255, 255, 255, 0.97);
+}
+.speech .prompt {
+  color: var(--ink);
+  text-shadow: none;
+  justify-content: flex-start;
+  flex: 1;
+}
+.speech .say-again { background: var(--accent); flex: none; }
+
+/* ---- Juicier choice cards ---- */
+.choice {
+  background: #fff;
+  border: 4px solid rgba(255, 255, 255, 0.9);
+  border-radius: clamp(22px, 4vmin, 40px);
+  box-shadow: 0 12px 0 rgba(0, 0, 0, 0.10), 0 16px 30px rgba(0, 0, 0, 0.14);
+  transition: transform 0.09s ease, box-shadow 0.09s ease;
+}
+.choice:active {
+  transform: translateY(6px) scale(0.97);
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.10), 0 8px 16px rgba(0, 0, 0, 0.14);
+}
+.choice.correct { animation: pop 0.55s ease; }
+
+/* ---- Home greeters ---- */
+.greeters { display: flex; gap: clamp(8px, 3vw, 36px); align-items: flex-end; justify-content: center; }
+.home-title {
+  background: rgba(255,255,255,0.85);
+  color: var(--ink);
+  padding: 0.1em 0.5em;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  text-shadow: none;
+}
+
+/* ---- Record-your-voice screen ---- */
+.rec-group {
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: var(--radius);
+  padding: clamp(10px, 2vmin, 18px);
+  box-shadow: var(--shadow);
+}
+.rec-group-title { font-weight: 800; margin-bottom: 8px; color: #555; font-size: clamp(0.95rem, 2.6vmin, 1.2rem); }
+.rec-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 8px 6px; border-top: 2px solid #f0f0f3;
+}
+.rec-row:first-of-type { border-top: none; }
+.rec-word { font-size: clamp(1rem, 3vmin, 1.4rem); }
+.rec-actions { display: flex; gap: 8px; }
+.rec-actions .iconbtn { width: clamp(40px, 7vmin, 56px); height: clamp(40px, 7vmin, 56px); font-size: clamp(1rem, 3vmin, 1.4rem); }
+.rec-btn { color: #d33; }
+.rec-row.recording .rec-btn { background: #ff5454; color: #fff; animation: recpulse 1s infinite; }
+.rec-row.done { background: #f3fbf3; border-radius: 12px; }
+@keyframes recpulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+.iconbtn:disabled { opacity: 0.35; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud, .sun, .mascot .mascot-svg, .m-eyes,
+  .anim-bounce .mascot-svg, .anim-shake .mascot-svg, .anim-wave .mascot-svg { animation: none; }
+}

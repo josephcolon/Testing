@@ -40,6 +40,7 @@ function colorsRound(theme, choiceCount) {
     kind: 'colors',
     promptText: `Find the ${target.name} one!`,
     promptSpeech: `Find the ${target.name} ${theme.nounSingular}!`,
+    speechTokens: ['find_the', `c_${target.id}`, theme.nounSingular],
     promptIcon: `<span class="swatch" style="background:${target.hex}"></span>`,
     choices,
   };
@@ -60,6 +61,7 @@ function shapesRound(theme, choiceCount, pool) {
     kind: 'shapes',
     promptText: `Find the ${target}!`,
     promptSpeech: `Find the ${target}!`,
+    speechTokens: ['find_the', `s_${target}`],
     promptIcon: `<span class="prompt-shape">${shapeSVG(target, '#ffffff')}</span>`,
     choices,
   };

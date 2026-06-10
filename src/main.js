@@ -12,6 +12,8 @@ import { renderGate } from './screens/parentGate.js';
 import { renderSettings } from './screens/settings.js';
 import { renderGame } from './screens/game.js';
 import { renderStickers } from './screens/stickers.js';
+import { renderRecord } from './screens/record.js';
+import { refreshRecorded } from './voice.js';
 
 const root = document.getElementById('app');
 
@@ -22,6 +24,7 @@ const screens = {
   settings: renderSettings,
   game: renderGame,
   stickers: renderStickers,
+  record: renderRecord,
 };
 
 export const app = {
@@ -33,6 +36,10 @@ export const app = {
     if (screen) screen({ root, show: app.show, params });
   },
 };
+
+// Load which voice clips have been recorded (async; gameplay falls back to
+// speech synthesis until this resolves).
+refreshRecorded();
 
 // Unlock audio/speech on the very first interaction.
 const unlockOnce = () => {

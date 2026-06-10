@@ -1,13 +1,15 @@
 /* ==========================================================================
-   home.js — title + mode select.
+   home.js — title + mode select, greeted by the two mascots.
 
-   Three big mode cards (icons carry the meaning for pre-readers), a sticker
-   book the kids can open themselves, and a small parent gear that leads to the
-   parent-gated settings. Kid-facing targets use pointerdown so a toddler's
-   slipping tap still registers.
+   Mascots wave hello, an illustrated scene sits behind, and three big mode
+   cards (icons carry meaning for pre-readers) sit below. A sticker book the
+   kids open themselves and a parent gear round it out. Kid-facing targets use
+   pointerdown so a toddler's slipping tap still registers.
    ========================================================================== */
 
 import { speak } from '../audio.js';
+import { mascotSVG, mascotName } from '../mascots.js';
+import { sceneHTML } from '../ui/scene.js';
 
 const MODES = [
   { id: 'solo',  glyph: '🚚',     label: '1 Player',      mode: { kind: 'solo', need: 1 } },
@@ -17,12 +19,17 @@ const MODES = [
 
 export function renderHome({ root, show }) {
   root.innerHTML = `
+    <div class="scene-holder home-scene">${sceneHTML('unicorns')}</div>
     <div class="screen">
       <button class="iconbtn" id="book" title="Sticker book"
         style="position:absolute;top:var(--gap);left:var(--gap)">📖</button>
       <button class="iconbtn" id="gear" title="Grown-ups"
         style="position:absolute;top:var(--gap);right:var(--gap)">⚙️</button>
-      <h1 class="title">🚚 Trucks &amp; Unicorns 🦄</h1>
+      <div class="greeters">
+        <div class="mascot anim-wave" data-theme="trucks">${mascotSVG('trucks', 'wave')}</div>
+        <div class="mascot anim-wave delay" data-theme="unicorns">${mascotSVG('unicorns', 'wave')}</div>
+      </div>
+      <h1 class="title home-title">Trucks &amp; Unicorns</h1>
       <p class="subtitle">Pick how to play!</p>
       <div class="mode-grid">
         ${MODES.map(
@@ -43,11 +50,13 @@ export function renderHome({ root, show }) {
     });
   });
 
-  root.querySelector('#book').addEventListener('pointerdown', () => show('stickers'));
-  root.querySelector('#gear').addEventListener('click', () => {
-    // Parent gate guards the settings screen.
-    show('gate', { then: 'settings' });
+  // Tapping a mascot makes it say hi.
+  root.querySelectorAll('.greeters .mascot').forEach((el) => {
+    el.addEventListener('pointerdown', () => speak(`Hi! I'm ${mascotName(el.dataset.theme)}!`));
   });
 
-  speak('Pick how to play!');
+  root.querySelector('#book').addEventListener('pointerdown', () => show('stickers'));
+  root.querySelector('#gear').addEventListener('click', () => show('gate', { then: 'settings' }));
+
+  speak("Let's play!");
 }

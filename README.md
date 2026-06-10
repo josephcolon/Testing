@@ -23,6 +23,26 @@ Tap the ⚙️ gear (a quick math gate keeps little fingers out) to set, **per c
 
 Profiles and settings are saved on the device (localStorage).
 
+## Pizazz (v2)
+- **Talking mascots** — **Rumble** the truck and **Stella** the unicorn greet on the
+  home screen, give the prompts from a speech bubble, blink and bob, and react
+  (happy on a correct tap, gently encouraging on a wrong one).
+- **Illustrated animated scenes** (Sago Mini-ish) behind every screen: drifting
+  clouds, a pulsing sun, rolling hills / a flowery rainbow meadow.
+- **Record the voice in your own voice** — under the parent gear, a 🎙️ screen lets
+  you record a small vocabulary (~40 short clips: "Find the…", colors, shapes,
+  numbers, "truck/trucks", cheers). The game stitches them into every prompt and
+  speaks them in your voice; anything not yet recorded falls back to device speech.
+  Clips are stored on the device (IndexedDB) and work offline.
+- Juicier choice cards (chunky shadow + squish), bigger first-try celebrations.
+
+## Roadmap (next)
+- **World map** with unlockable levels (a journey instead of endless rounds).
+- **More mini-games** beyond find-the-answer (matching pairs, tracing, peekaboo).
+- **Character creator** — original archetypes (caped hero, crown-and-gown princess,
+  knight, fairy) with color/accessory choices so each kid makes "their" character.
+  Note: we ship original characters only — no trademarked/licensed characters.
+
 ## Design principles (ages 3–5)
 - One repeatable action (tap), huge targets, high contrast.
 - Choice cards respond to `pointerdown`, not `click` — a toddler's slipping

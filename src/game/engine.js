@@ -6,20 +6,21 @@
      • 2P turn-based -> one engine, two profiles, turnBased: true
      • 2P split      -> two engines side by side, one profile each
 
-   Loop: show a spoken prompt + a board of big choice cards (count = the active
-   child's difficulty). Correct tap -> celebrate + sticker + next round. Wrong
-   tap -> gentle bounce + "try again" with the prompt repeated, the board stays
-   open (no game-over).
+   The panel has an illustrated animated SCENE behind it and a talking MASCOT
+   who gives the prompt from a speech bubble and reacts to answers (happy on a
+   correct tap, gently encouraging on a wrong one). Prompts play in the parent's
+   recorded voice when available, otherwise fall back to speech synthesis.
 
    Toddler-input notes: choice cards listen on pointerdown (not click) because
    young children's taps slip a few pixels, which suppresses click events.
-   Speech notes: praise is allowed to finish (the next prompt queues instead of
-   cancelling), and split-screen panels never cancel each other's speech.
    ========================================================================== */
 
 import { THEMES, applyThemePalette } from '../themes.js';
 import { choiceCountFor, addSticker } from '../state.js';
-import { themeSounds, speak } from '../audio.js';
+import { themeSounds } from '../audio.js';
+import { speakTokens, PRAISE_TOKENS } from '../voice.js';
+import { mascotSVG } from '../mascots.js';
+import { sceneHTML } from '../ui/scene.js';
 import { burst } from '../ui/confetti.js';
 import { makeColorsOrShapesRound } from '../activities/colorsShapes.js';
 import { makeCountingRound } from '../activities/counting.js';
@@ -29,14 +30,6 @@ const HINT_AFTER_MS = 7000; // gently wiggle the answer if a child is stuck
 const randomFrom = (a) => a[Math.floor(Math.random() * a.length)];
 
 export class GameEngine {
-  /**
-   * @param {Object} cfg
-   * @param {HTMLElement} cfg.root      panel element to render into
-   * @param {Array}  cfg.profiles       1 profile (single/split) or 2 (turn-based)
-   * @param {boolean} cfg.turnBased     alternate profiles after each correct answer
-   * @param {boolean} cfg.split         true when running inside a split panel
-   * @param {Function} cfg.onExit       called when the back button is pressed
-   */
   constructor({ root, profiles, turnBased = false, split = false, onExit }) {
     this.root = root;
     this.profiles = profiles;
@@ -48,43 +41,43 @@ export class GameEngine {
     this.locked = false;
     this.firstTry = true;
     this.hintTimer = null;
-    this.announceTurn = turnBased; // say whose turn it is, starting with round 1
+    this.announceTurn = turnBased;
     this.build();
     this.nextRound();
   }
 
-  get activeProfile() {
-    return this.profiles[this.activeIndex];
-  }
-  get activeTheme() {
-    return THEMES[this.activeProfile.theme] || THEMES.trucks;
-  }
-  get sfx() {
-    return themeSounds(this.activeTheme.id);
-  }
+  get activeProfile() { return this.profiles[this.activeIndex]; }
+  get activeTheme() { return THEMES[this.activeProfile.theme] || THEMES.trucks; }
+  get sfx() { return themeSounds(this.activeTheme.id); }
 
-  /** Panel-aware speech: split panels always queue so they never cancel each other. */
-  say(text, urgent = false) {
-    speak(text, { interrupt: urgent && !this.split });
+  /** Speak prompt tokens; split panels queue so they never cancel each other. */
+  say(tokens, fallback, urgent = false) {
+    speakTokens(tokens, fallback, { interrupt: urgent && !this.split });
   }
 
   build() {
     this.root.classList.add('panel');
     if (this.split) this.root.classList.add('split');
     this.root.innerHTML = `
+      <div class="scene-holder"></div>
       <div class="topbar">
         <button class="iconbtn back" title="Back">⬅️</button>
         <div class="turn-banner" hidden></div>
         <div class="scoreboard"></div>
       </div>
-      <div class="prompt-row">
-        <button class="iconbtn say-again" title="Say it again">🔊</button>
-        <div class="prompt"></div>
+      <div class="stage">
+        <div class="mascot" title="Say it again"></div>
+        <div class="speech">
+          <button class="iconbtn say-again" title="Say it again">🔊</button>
+          <div class="prompt"></div>
+        </div>
       </div>
       <div class="choices"></div>
     `;
+    this.elScene = this.root.querySelector('.scene-holder');
     this.elBanner = this.root.querySelector('.turn-banner');
     this.elScore = this.root.querySelector('.scoreboard');
+    this.elMascot = this.root.querySelector('.mascot');
     this.elPrompt = this.root.querySelector('.prompt');
     this.elChoices = this.root.querySelector('.choices');
 
@@ -92,30 +85,34 @@ export class GameEngine {
       this.destroy();
       this.onExit?.();
     });
-    // Big obvious repeat button — pre-readers can always hear the task again.
-    this.root.querySelector('.say-again').addEventListener('pointerdown', () => {
-      if (this.round) this.say(this.round.promptSpeech, true);
-    });
-    this.elPrompt.addEventListener('pointerdown', () => {
-      if (this.round) this.say(this.round.promptSpeech, true);
-    });
+    const repeat = () => this.round && this.say(this.round.speechTokens, this.round.promptSpeech, true);
+    this.root.querySelector('.say-again').addEventListener('pointerdown', repeat);
+    this.elMascot.addEventListener('pointerdown', repeat);
+  }
+
+  setMascot(mood, anim) {
+    this.elMascot.innerHTML = mascotSVG(this.activeTheme.id, mood);
+    this.elMascot.className = 'mascot' + (anim ? ' anim-' + anim : '');
+    // Restart the animation cleanly.
+    void this.elMascot.offsetWidth;
+    if (anim) this.elMascot.classList.add('anim-' + anim);
   }
 
   applyTheme() {
     const theme = this.activeTheme;
+    const target = this.split ? this.root : document.body;
+    applyThemePalette(theme, target);
     if (this.split) {
-      applyThemePalette(theme, this.root);
       this.root.style.background = `linear-gradient(160deg, ${theme.bg[0]}, ${theme.bg[1]})`;
     } else {
-      applyThemePalette(theme, document.body);
       document.body.style.background = `linear-gradient(160deg, ${theme.bg[0]}, ${theme.bg[1]})`;
     }
+    this.elScene.innerHTML = sceneHTML(theme.id);
   }
 
   renderScore() {
     const theme = this.activeTheme;
     if (this.turnBased) {
-      // Show both children's tallies.
       this.elScore.innerHTML = this.profiles
         .map((p) => {
           const t = THEMES[p.theme];
@@ -136,28 +133,26 @@ export class GameEngine {
     this.firstTry = true;
     this.applyTheme();
     this.renderScore();
+    this.setMascot('idle');
 
     const theme = this.activeTheme;
     const count = choiceCountFor(this.activeProfile);
-    // Alternate between colors/shapes and counting for variety.
     const useCounting = Math.random() < 0.5;
     this.round = useCounting
       ? makeCountingRound(theme, count)
       : makeColorsOrShapesRound(theme, count);
 
-    // Prompt with its visual cue (swatch / shape icon / numeral), spoken aloud.
     this.elPrompt.innerHTML =
       (this.round.promptIcon || '') + `<span>${this.round.promptText}</span>`;
-    let speech = this.round.promptSpeech;
+
+    // Voice: announce the active child by name on turn change (TTS — names
+    // aren't in the recorded vocabulary), then the prompt.
     if (this.announceTurn) {
-      speech = `${this.activeProfile.name}, your turn! ${speech}`;
+      this.say(null, `${this.activeProfile.name}, your turn!`, false);
       this.announceTurn = false;
     }
-    // Queued (not urgent) so it never clips the praise that precedes it.
-    this.say(speech, false);
+    this.say(this.round.speechTokens, this.round.promptSpeech, false);
 
-    // Board layout: explicit rows so the grid can never overflow a short
-    // phone-landscape panel.
     const n = this.round.choices.length;
     const cols = n === 4 ? 2 : n <= 3 ? n : 3;
     const rows = Math.ceil(n / cols);
@@ -168,7 +163,6 @@ export class GameEngine {
       const btn = document.createElement('button');
       btn.className = 'choice';
       btn.innerHTML = choice.html;
-      // pointerdown, not click: a toddler's slipping finger still counts.
       btn.addEventListener('pointerdown', () => this.onChoice(btn, choice));
       this.elChoices.appendChild(btn);
     });
@@ -176,7 +170,6 @@ export class GameEngine {
     this.armHint();
   }
 
-  /** Gentle hint if the child hesitates — keeps the experience frustration-free. */
   armHint() {
     clearTimeout(this.hintTimer);
     this.hintTimer = setTimeout(() => {
@@ -192,15 +185,15 @@ export class GameEngine {
     if (choice.correct) {
       this.onCorrect(btn);
     } else {
-      // No punishment: bounce, soft sound, dim the wrong card, keep playing.
       this.firstTry = false;
       btn.classList.add('wrong');
       this.sfx.wrong();
-      // Re-anchor the task — a 3-year-old has likely forgotten the question.
-      this.say(`Try again! ${this.round.promptSpeech}`, true);
+      this.setMascot('oops', 'shake');
+      // Re-anchor the task: "Try again!" + repeat the prompt.
+      this.say(['try_again', ...this.round.speechTokens], `Try again! ${this.round.promptSpeech}`, true);
       setTimeout(() => btn.classList.remove('wrong'), 400);
       btn.classList.add('dim');
-      this.armHint(); // hint counts from the last interaction
+      this.armHint();
     }
   }
 
@@ -210,10 +203,12 @@ export class GameEngine {
     btn.classList.remove('hint');
     btn.classList.add('correct');
     this.sfx.correct();
-    if (this.firstTry) this.sfx.bonus(); // extra sparkle for a first-try answer
-    this.say(randomFrom(this.activeTheme.praise), true);
+    if (this.firstTry) this.sfx.bonus();
+    this.setMascot('happy', 'bounce');
 
-    // Confetti from the tapped card's position — bigger for a first-try answer.
+    const praiseTok = randomFrom(PRAISE_TOKENS);
+    this.say([praiseTok], randomFrom(this.activeTheme.praise), true);
+
     const r = btn.getBoundingClientRect();
     burst({
       x: (r.left + r.width / 2) / window.innerWidth,
@@ -226,13 +221,9 @@ export class GameEngine {
     this.renderScore();
 
     const reachedReward = this.scores[id] % REWARD_EVERY === 0;
-    // Long enough to let the pop animation land and the praise be heard.
     setTimeout(() => {
-      if (reachedReward) {
-        this.showReward(() => this.advanceTurnAndNext());
-      } else {
-        this.advanceTurnAndNext();
-      }
+      if (reachedReward) this.showReward(() => this.advanceTurnAndNext());
+      else this.advanceTurnAndNext();
     }, 1100);
   }
 
@@ -246,13 +237,13 @@ export class GameEngine {
 
   showReward(done) {
     const theme = this.activeTheme;
-    // Earn a real, persistent sticker for the child's sticker book.
     const sticker = randomFrom(theme.stickerSet);
     addSticker(this.activeProfile.id, sticker);
 
     this.sfx.win();
+    this.setMascot('happy', 'bounce');
     burst({ x: 0.5, y: 0.4, count: 160 });
-    this.say('You earned a sticker!', true);
+    this.say(['reward'], 'You earned a sticker!', true);
     const overlay = document.createElement('div');
     overlay.className = 'reward';
     overlay.innerHTML = `
@@ -260,10 +251,7 @@ export class GameEngine {
       <div class="cheer">A sticker for your book!</div>
     `;
     this.root.appendChild(overlay);
-    setTimeout(() => {
-      overlay.remove();
-      done();
-    }, 2200);
+    setTimeout(() => { overlay.remove(); done(); }, 2200);
   }
 
   destroy() {

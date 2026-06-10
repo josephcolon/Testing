@@ -22,6 +22,7 @@ export function renderSettings({ root, show }) {
         <div class="settings-list">
           ${profiles.map(rowHTML).join('')}
           <button class="btn accent" id="add">➕ Add a child</button>
+          <button class="btn" id="record">🎙️ Record the voice in your own voice</button>
           <div class="setting-row" style="justify-content:center">
             <button class="pill ${s.soundOn ? 'on' : ''}" id="sound">🔊 Sounds ${s.soundOn ? 'On' : 'Off'}</button>
             <button class="pill ${s.voiceOn ? 'on' : ''}" id="voice">🗣️ Voice ${s.voiceOn ? 'On' : 'Off'}</button>
@@ -61,6 +62,7 @@ export function renderSettings({ root, show }) {
   function wire() {
     root.querySelector('#back').addEventListener('click', () => show('home'));
     root.querySelector('#add').addEventListener('click', () => { addProfile(); draw(); });
+    root.querySelector('#record').addEventListener('click', () => show('record'));
 
     const s = getSettings();
     root.querySelector('#sound').addEventListener('click', () => { updateSettings({ soundOn: !s.soundOn }); draw(); });

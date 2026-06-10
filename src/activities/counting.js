@@ -21,10 +21,12 @@ export function makeCountingRound(theme, choiceCount) {
     }))
   );
 
+  const noun = target === 1 ? theme.nounSingular : theme.nounPlural;
   return {
     kind: 'counting',
-    promptText: `Tap ${target} ${target === 1 ? theme.nounSingular : theme.nounPlural}!`,
-    promptSpeech: `Tap ${NUMBER_WORDS[target]} ${target === 1 ? theme.nounSingular : theme.nounPlural}!`,
+    promptText: `Tap ${target} ${noun}!`,
+    promptSpeech: `Tap ${NUMBER_WORDS[target]} ${noun}!`,
+    speechTokens: ['tap', `n_${target}`, noun],
     promptIcon: `<span class="prompt-num">${target}</span>`,
     choices,
   };
