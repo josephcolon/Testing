@@ -1,9 +1,14 @@
 /* ==========================================================================
    audio.js — sound effects + spoken prompts.
 
-   SFX are synthesized with the Web Audio API (no asset files, works offline).
-   Spoken prompts use the browser SpeechSynthesis API so a non-reader never
-   needs to read a menu. Both respect the global sound/voice settings.
+   SFX are synthesized with the Web Audio API (no asset files, works offline)
+   and are THEMED: trucks get honks and engine rumbles, unicorns get sparkle
+   arpeggios and chimes. Spoken prompts use the browser SpeechSynthesis API so
+   a non-reader never needs to read a menu.
+
+   speak() supports interrupt control: praise is allowed to finish before the
+   next prompt (queued, not cancelled), and split-screen panels never cancel
+   each other's speech.
    ========================================================================== */
 
 import { getSettings } from './state.js';
@@ -48,21 +53,55 @@ function play(notes) {
   notes.forEach(([freq, start, dur, opts]) => tone(freq, start, dur, opts));
 }
 
-// A little musical vocabulary of feedback sounds.
-export const sfx = {
-  tap:   () => play([[440, 0, 0.08, { type: 'triangle', gain: 0.12 }]]),
-  correct: () =>
-    play([
-      [523, 0, 0.12], [659, 0.1, 0.12], [784, 0.2, 0.18], [1047, 0.32, 0.28],
-    ]),
-  wrong: () =>
-    play([[200, 0, 0.18, { type: 'sine', gain: 0.12 }], [150, 0.12, 0.2, { type: 'sine', gain: 0.1 }]]),
-  win: () =>
-    play([
-      [523, 0, 0.14], [659, 0.14, 0.14], [784, 0.28, 0.14],
-      [1047, 0.42, 0.18], [784, 0.6, 0.12], [1047, 0.72, 0.36],
-    ]),
+// Gentle, non-punishing "not quite" — shared by both themes on purpose.
+const softWrong = () =>
+  play([[200, 0, 0.18, { type: 'sine', gain: 0.12 }], [150, 0.12, 0.2, { type: 'sine', gain: 0.1 }]]);
+
+const SOUND_THEMES = {
+  trucks: {
+    // Engine blip on tap, double honk + chord on correct, horn fanfare on win.
+    tap: () => play([[110, 0, 0.1, { type: 'sawtooth', gain: 0.1 }]]),
+    correct: () =>
+      play([
+        [330, 0, 0.12, { type: 'square', gain: 0.07 }],
+        [392, 0.14, 0.2, { type: 'square', gain: 0.07 }],
+        [523, 0.38, 0.26, { type: 'triangle', gain: 0.14 }],
+      ]),
+    wrong: softWrong,
+    win: () =>
+      play([
+        [262, 0, 0.14, { type: 'square', gain: 0.07 }],
+        [330, 0.14, 0.14, { type: 'square', gain: 0.07 }],
+        [392, 0.28, 0.14, { type: 'square', gain: 0.07 }],
+        [523, 0.42, 0.4, { type: 'triangle', gain: 0.15 }],
+      ]),
+    bonus: () => play([[784, 0, 0.08, { gain: 0.1 }], [1047, 0.07, 0.18, { gain: 0.12 }]]),
+  },
+  unicorns: {
+    // Chime on tap, sparkle arpeggio on correct, glissando on win.
+    tap: () => play([[880, 0, 0.07, { type: 'triangle', gain: 0.1 }]]),
+    correct: () =>
+      play([
+        [1047, 0, 0.1, { gain: 0.12 }],
+        [1319, 0.08, 0.1, { gain: 0.12 }],
+        [1568, 0.16, 0.12, { gain: 0.12 }],
+        [2093, 0.26, 0.3, { gain: 0.12 }],
+      ]),
+    wrong: softWrong,
+    win: () =>
+      play([
+        [784, 0, 0.1, { gain: 0.1 }], [988, 0.08, 0.1, { gain: 0.1 }],
+        [1175, 0.16, 0.1, { gain: 0.1 }], [1568, 0.24, 0.12, { gain: 0.12 }],
+        [1976, 0.34, 0.14, { gain: 0.12 }], [2349, 0.46, 0.34, { gain: 0.12 }],
+      ]),
+    bonus: () => play([[1568, 0, 0.08, { gain: 0.1 }], [2093, 0.07, 0.2, { gain: 0.12 }]]),
+  },
 };
+
+/** Themed sound set for a theme id (falls back to trucks). */
+export function themeSounds(themeId) {
+  return SOUND_THEMES[themeId] || SOUND_THEMES.trucks;
+}
 
 /* ---- Spoken prompts ---- */
 
@@ -82,11 +121,17 @@ if ('speechSynthesis' in window) {
   window.speechSynthesis.onvoiceschanged = pickVoice;
 }
 
-/** Speak a short prompt aloud (cancels any in-flight speech). */
-export function speak(text) {
+/**
+ * Speak a short prompt aloud.
+ * @param {string} text
+ * @param {{interrupt?: boolean}} opts  interrupt=true cancels in-flight speech;
+ *   interrupt=false queues politely (lets praise finish, avoids split-screen
+ *   panels cancelling each other).
+ */
+export function speak(text, { interrupt = true } = {}) {
   if (!getSettings().voiceOn || !('speechSynthesis' in window)) return;
   try {
-    window.speechSynthesis.cancel();
+    if (interrupt) window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     u.voice = preferredVoice || pickVoice();
     u.rate = 0.92; // a touch slower for little ears
@@ -97,7 +142,3 @@ export function speak(text) {
     /* speech unavailable — sounds + visuals still carry the game */
   }
 }
-
-// Cheerful praise lines spoken on a correct answer.
-const PRAISE = ['Yay!', 'Great job!', 'You got it!', 'Awesome!', 'Woohoo!', 'Perfect!'];
-export const randomPraise = () => PRAISE[Math.floor(Math.random() * PRAISE.length)];

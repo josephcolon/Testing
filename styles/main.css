@@ -189,6 +189,13 @@ body {
 }
 .iconbtn:active { transform: scale(0.9); }
 
+.prompt-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 1.6vmin, 16px);
+  padding: clamp(4px, 1.4vmin, 16px);
+}
 .prompt {
   display: flex;
   align-items: center;
@@ -198,23 +205,36 @@ body {
   font-weight: 800;
   color: #fff;
   text-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
-  padding: clamp(4px, 1.4vmin, 16px);
   min-height: 1.4em;
   cursor: pointer; /* tap to repeat the spoken prompt */
 }
 .prompt .swatch {
   width: 1.1em; height: 1.1em; border-radius: 0.25em;
   box-shadow: inset 0 0 0 4px rgba(255,255,255,0.7), 0 3px 6px rgba(0,0,0,0.2);
+  flex: none;
+}
+.prompt .prompt-shape { width: 1.2em; height: 1.2em; flex: none; display: inline-flex; }
+.prompt .prompt-shape svg { width: 100%; height: 100%; }
+.prompt .prompt-num {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--ink);
+  border-radius: 0.3em;
+  min-width: 1.3em;
+  padding: 0 0.15em;
+  text-align: center;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  flex: none;
 }
 
 /* ---- Choice grid ---- */
+/* Explicit rows are set inline by the engine so the board always fits the
+   panel — even 6 cards on a phone in landscape. */
 .choices {
   flex: 1;
+  min-height: 0;
   display: grid;
   gap: var(--gap);
   padding: var(--gap);
-  align-content: center;
-  justify-content: center;
 }
 .choice {
   background: rgba(255, 255, 255, 0.96);
@@ -225,21 +245,28 @@ body {
   display: grid;
   place-items: center;
   padding: clamp(10px, 2vmin, 24px);
-  aspect-ratio: 1 / 1;
-  width: 100%;
-  height: 100%;
+  min-width: 0;
+  min-height: 0;
   transition: transform 0.1s ease;
 }
-.choice svg { width: 100%; height: 100%; max-height: 26vmin; }
+.choice > svg { width: 100%; height: 100%; animation: bob 2.8s ease-in-out infinite; }
+.choice:nth-child(2n) > svg { animation-delay: 0.9s; }
+.choice:nth-child(3n) > svg { animation-delay: 1.7s; }
 .choice .count-group {
   display: grid;
   gap: 4%;
   width: 100%;
   height: 100%;
+  grid-auto-rows: minmax(0, 1fr);
   place-content: center;
   grid-auto-flow: row;
 }
-.choice .count-group svg { max-height: 12vmin; }
+.choice .count-group svg { width: 100%; height: 100%; min-height: 0; }
+
+@keyframes bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3.5%); }
+}
 
 .choice:active { transform: scale(0.95); }
 .choice.correct { animation: pop 0.5s ease; }
@@ -318,6 +345,50 @@ body {
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
 .back-btn { position: absolute; top: var(--gap); left: var(--gap); z-index: 40; }
+
+/* ---- Sticker book ---- */
+.book-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+  width: min(720px, 94vw);
+}
+.book-row {
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: var(--radius);
+  padding: clamp(12px, 2.4vmin, 22px);
+  box-shadow: var(--shadow);
+}
+.book-row .head { display: flex; align-items: center; gap: var(--gap); }
+.book-row .avatar { width: clamp(56px, 11vmin, 90px); height: clamp(56px, 11vmin, 90px); flex: none; }
+.book-row .avatar svg { width: 100%; height: 100%; }
+.book-row .name { font-weight: 800; font-size: clamp(1.1rem, 3.4vmin, 1.6rem); }
+.sticker-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+  justify-content: center;
+}
+.sticker {
+  font-family: inherit;
+  font-size: clamp(1.5rem, 6vmin, 2.6rem);
+  background: #fff7e0;
+  border: none;
+  border-radius: 14px;
+  line-height: 1.2;
+  padding: 0.12em 0.2em;
+  cursor: pointer;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+}
+.sticker.pop { animation: pop 0.5s ease; }
+.empty-hint { opacity: 0.6; font-weight: 700; padding: 0.5em; }
+
+/* Respect users who turn off motion. */
+@media (prefers-reduced-motion: reduce) {
+  .choice > svg { animation: none; }
+  .choice.hint { animation: none; outline: 6px solid var(--accent); }
+}
 
 /* Landscape split-screen: stack horizontally; portrait: stack vertically */
 @media (orientation: portrait) {

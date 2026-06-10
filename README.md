@@ -25,10 +25,18 @@ Profiles and settings are saved on the device (localStorage).
 
 ## Design principles (ages 3–5)
 - One repeatable action (tap), huge targets, high contrast.
-- No reading required — prompts are spoken; tap the prompt to hear it again.
-- **No punishment, no game-over** — a wrong tap gives a gentle bounce and "try
-  again"; the board stays open. A subtle hint appears if a child hesitates.
-- A sticker every round, and a confetti celebration every few stickers.
+- Choice cards respond to `pointerdown`, not `click` — a toddler's slipping
+  finger still counts as a tap.
+- No reading required — prompts are spoken (with a 🔊 repeat button) and carry a
+  visual cue: a color swatch, a shape icon, or a big numeral.
+- **No punishment, no game-over** — a wrong tap gives a gentle bounce and
+  repeats the question; the board stays open. A subtle hint appears if a child
+  hesitates. First-try answers earn extra sparkle.
+- Easy levels draw from primary colors and the four basic shapes only; trickier
+  content (ovals, diamonds, pink-vs-purple) appears at higher difficulty.
+- **Persistent sticker book** 📖 — every celebration earns a themed collectible
+  sticker that lives in the child's book between sessions.
+- Themed sound personalities: trucks honk and rumble, unicorns chime and sparkle.
 
 ## Run it
 ```bash

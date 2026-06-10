@@ -32,13 +32,14 @@ export function renderPick({ root, show, params }) {
         const badge = order >= 0 ? `<div class="name">#${order + 1}</div>` : `<div class="name">${p.name}</div>`;
         return `
           <div class="profile ${order >= 0 ? 'selected' : ''}" data-id="${p.id}">
-            <div class="avatar">${theme.hero(p.theme === 'trucks' ? '#3d8bff' : '#9b5de5')}</div>
+            <div class="avatar">${theme.hero(theme.primary)}</div>
             ${badge}
           </div>`;
       })
       .join('');
     list.querySelectorAll('.profile').forEach((el) => {
-      el.addEventListener('click', () => pick(el.dataset.id));
+      // pointerdown: a toddler's slipping tap still registers.
+      el.addEventListener('pointerdown', () => pick(el.dataset.id));
     });
   }
 

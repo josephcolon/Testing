@@ -25,7 +25,7 @@ export function makeCountingRound(theme, choiceCount) {
     kind: 'counting',
     promptText: `Tap ${target} ${target === 1 ? theme.nounSingular : theme.nounPlural}!`,
     promptSpeech: `Tap ${NUMBER_WORDS[target]} ${target === 1 ? theme.nounSingular : theme.nounPlural}!`,
-    swatch: null,
+    promptIcon: `<span class="prompt-num">${target}</span>`,
     choices,
   };
 }
@@ -33,7 +33,6 @@ export function makeCountingRound(theme, choiceCount) {
 // Lay out `n` hero sprites in a tidy grid inside a card.
 function group(theme, n) {
   const cols = n <= 1 ? 1 : n <= 4 ? 2 : 3;
-  const color = '#3d8bff';
-  const sprites = Array.from({ length: n }, () => theme.hero(color)).join('');
+  const sprites = Array.from({ length: n }, () => theme.hero(theme.primary)).join('');
   return `<div class="count-group" style="grid-template-columns:repeat(${cols},1fr)">${sprites}</div>`;
 }

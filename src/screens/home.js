@@ -1,8 +1,10 @@
 /* ==========================================================================
    home.js — title + mode select.
 
-   Three big mode cards (icons carry the meaning for pre-readers) plus a small
-   parent gear in the corner that leads to the parent-gated settings.
+   Three big mode cards (icons carry the meaning for pre-readers), a sticker
+   book the kids can open themselves, and a small parent gear that leads to the
+   parent-gated settings. Kid-facing targets use pointerdown so a toddler's
+   slipping tap still registers.
    ========================================================================== */
 
 import { speak } from '../audio.js';
@@ -16,6 +18,8 @@ const MODES = [
 export function renderHome({ root, show }) {
   root.innerHTML = `
     <div class="screen">
+      <button class="iconbtn" id="book" title="Sticker book"
+        style="position:absolute;top:var(--gap);left:var(--gap)">📖</button>
       <button class="iconbtn" id="gear" title="Grown-ups"
         style="position:absolute;top:var(--gap);right:var(--gap)">⚙️</button>
       <h1 class="title">🚚 Trucks &amp; Unicorns 🦄</h1>
@@ -33,12 +37,13 @@ export function renderHome({ root, show }) {
   `;
 
   root.querySelectorAll('.mode-card').forEach((card) => {
-    card.addEventListener('click', () => {
+    card.addEventListener('pointerdown', () => {
       const def = MODES.find((m) => m.id === card.dataset.mode);
       show('pick', { mode: def.mode });
     });
   });
 
+  root.querySelector('#book').addEventListener('pointerdown', () => show('stickers'));
   root.querySelector('#gear').addEventListener('click', () => {
     // Parent gate guards the settings screen.
     show('gate', { then: 'settings' });

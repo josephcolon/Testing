@@ -34,10 +34,9 @@ export function renderSettings({ root, show }) {
 
   function rowHTML(p) {
     const theme = THEMES[p.theme];
-    const heroColor = p.theme === 'trucks' ? '#3d8bff' : '#9b5de5';
     return `
       <div class="setting-row" data-id="${p.id}">
-        <div class="avatar">${theme.hero(heroColor)}</div>
+        <div class="avatar">${theme.hero(theme.primary)}</div>
         <input type="text" class="pname" value="${escapeHtml(p.name)}" maxlength="12" />
         <div class="setting-field">
           <label>Theme</label>

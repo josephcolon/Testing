@@ -11,6 +11,7 @@ import { renderPick } from './screens/pick.js';
 import { renderGate } from './screens/parentGate.js';
 import { renderSettings } from './screens/settings.js';
 import { renderGame } from './screens/game.js';
+import { renderStickers } from './screens/stickers.js';
 
 const root = document.getElementById('app');
 
@@ -20,6 +21,7 @@ const screens = {
   gate: renderGate,
   settings: renderSettings,
   game: renderGame,
+  stickers: renderStickers,
 };
 
 export const app = {

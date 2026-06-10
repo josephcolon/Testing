@@ -17,8 +17,8 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 function defaultState() {
   return {
     profiles: [
-      { id: uid(), name: 'Buddy', theme: 'trucks', difficulty: 1 },
-      { id: uid(), name: 'Star', theme: 'unicorns', difficulty: 3 },
+      { id: uid(), name: 'Buddy', theme: 'trucks', difficulty: 1, stickers: [] },
+      { id: uid(), name: 'Star', theme: 'unicorns', difficulty: 3, stickers: [] },
     ],
     settings: { soundOn: true, voiceOn: true },
   };
@@ -32,8 +32,10 @@ function load() {
     if (!raw) return defaultState();
     const parsed = JSON.parse(raw);
     // Merge with defaults so missing keys never crash older saves.
+    const profiles = (parsed.profiles?.length ? parsed.profiles : defaultState().profiles)
+      .map((p) => ({ stickers: [], ...p }));
     return {
-      profiles: parsed.profiles?.length ? parsed.profiles : defaultState().profiles,
+      profiles,
       settings: { soundOn: true, voiceOn: true, ...(parsed.settings || {}) },
     };
   } catch {
@@ -65,10 +67,20 @@ export function updateProfile(id, patch) {
 }
 
 export function addProfile() {
-  const p = { id: uid(), name: 'New', theme: 'trucks', difficulty: 1 };
+  const p = { id: uid(), name: 'New', theme: 'trucks', difficulty: 1, stickers: [] };
   state.profiles.push(p);
   save();
   return p;
+}
+
+/** Add a collectible sticker to a child's persistent sticker book. */
+export function addSticker(profileId, emoji) {
+  const p = getProfile(profileId);
+  if (!p) return;
+  p.stickers = p.stickers || [];
+  p.stickers.push(emoji);
+  if (p.stickers.length > 500) p.stickers = p.stickers.slice(-500); // sane cap
+  save();
 }
 
 export function removeProfile(id) {
