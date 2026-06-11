@@ -13,7 +13,7 @@ import { renderSettings } from './screens/settings.js';
 import { renderGame } from './screens/game.js';
 import { renderStickers } from './screens/stickers.js';
 import { renderRecord } from './screens/record.js';
-import { refreshRecorded } from './voice.js';
+import { refreshRecorded, requestPersistence } from './voice.js';
 
 const root = document.getElementById('app');
 
@@ -38,8 +38,10 @@ export const app = {
 };
 
 // Load which voice clips have been recorded (async; gameplay falls back to
-// speech synthesis until this resolves).
+// speech synthesis until this resolves), and ask to keep them durably so they
+// persist across every session, not just the one they were recorded in.
 refreshRecorded();
+requestPersistence();
 
 // Unlock audio/speech on the very first interaction.
 const unlockOnce = () => {

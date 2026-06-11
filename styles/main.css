@@ -634,3 +634,49 @@ body {
 }
 .basket-svg { font-size: clamp(2.2rem, 11vmin, 5rem); filter: drop-shadow(0 3px 4px rgba(0,0,0,0.2)); }
 .basket.thump { animation: pop 0.35s ease; }
+
+/* ==========================================================================
+   v5 — more games: shadow-match, connect-dots, same-or-different, feed-me,
+   echo (Simon), I-spy.
+   ========================================================================== */
+
+/* Connect the dots — big numerals */
+.choice .dotnum { font-size: clamp(1.8rem, 10vmin, 4.5rem); font-weight: 800; color: var(--ink); }
+
+/* Same or Different — two heroes over Same/Different buttons */
+.choices .sd-pair {
+  flex: 0 0 42%;
+  display: flex; align-items: center; justify-content: center; gap: 4%;
+  padding: clamp(6px, 2vmin, 18px);
+}
+.sd-item { width: clamp(64px, 22vmin, 160px); }
+.sd-item svg { width: 100%; height: 100%; }
+.sd-vs { font-size: clamp(1.4rem, 6vmin, 3rem); opacity: 0.7; }
+.sd-choices { flex: 1; display: flex; gap: var(--gap); justify-content: center; align-items: center; padding: 0 4% 4%; }
+.sd-choices .sd-btn { flex: 0 1 40%; aspect-ratio: 2.4 / 1; min-height: 0; }
+.sd-label { font-size: clamp(1rem, 3.4vmin, 1.8rem); font-weight: 800; }
+
+/* Feed me — hungry mascot over a row of treats */
+.choices .feed-mascot {
+  flex: 0 0 38%;
+  display: grid; place-items: center;
+  padding: clamp(6px, 2vmin, 18px);
+}
+.feed-mascot svg { width: clamp(72px, 24vmin, 170px); height: clamp(72px, 24vmin, 170px); }
+.feed-mascot.giggle svg { animation: mascot-shake 0.4s ease; }
+.feed-treats { flex: 1; }
+.treat .treat-emoji { font-size: clamp(2rem, 10vmin, 4.5rem); }
+.treat.eaten { visibility: hidden; transform: scale(0.2); transition: transform 0.18s ease; }
+
+/* Echo (Simon) — colored pads that flash */
+.echo-pad { background: var(--pad); border: 6px solid rgba(255,255,255,0.7); opacity: 0.78; }
+.echo-pad.flash { animation: padflash 0.45s ease; }
+@keyframes padflash {
+  0% { opacity: 0.78; transform: scale(1); }
+  40% { opacity: 1; transform: scale(1.06); box-shadow: 0 0 0 8px rgba(255,255,255,0.5), var(--shadow); }
+  100% { opacity: 0.78; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .choice .bubble, .sort-item svg, .feed-mascot svg { animation: none; }
+}

@@ -25,10 +25,17 @@ import * as howmany from '../activities/howmany.js';
 import * as whichmore from '../activities/whichmore.js';
 import * as inorder from '../activities/inorder.js';
 import * as sorting from '../activities/sorting.js';
+import * as shadowmatch from '../activities/shadowmatch.js';
+import * as connectdots from '../activities/connectdots.js';
+import * as sameordifferent from '../activities/sameordifferent.js';
+import * as feedme from '../activities/feedme.js';
+import * as echo from '../activities/echo.js';
+import * as ispy from '../activities/ispy.js';
 
 export const GAMES = [
   findit, countgroup, countout, tapall, oddoneout, sizes, pattern, memory,
   pop, peekaboo, tickle, howmany, whichmore, inorder, sorting,
+  shadowmatch, connectdots, sameordifferent, feedme, echo, ispy,
 ];
 
 let last = null;

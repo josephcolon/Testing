@@ -8,7 +8,7 @@ a pre-reader can play with little to no help.
 The engine is a **mini-game host** — each round it picks a different game (no
 immediate repeats), all sharing the scene, mascots, voice, and rewards:
 
-**Learning-leaning** (each targets a documented preschool-math skill):
+**Learning-leaning** (each targets a documented preschool skill):
 - **Find It** — colors & shapes recognition
 - **Count the Group** — tap the group of N
 - **Count Out** — tap N, one at a time (one-to-one correspondence)
@@ -21,11 +21,17 @@ immediate repeats), all sharing the scene, mascots, voice, and rewards:
 - **Sorting** — drop each into the matching basket (classification; difficulty 2+)
 - **Pattern** — what comes next, A-B-A-B (difficulty 2+)
 - **Memory Match** — flip & match pairs
+- **Shadow Match** — match a shape to its silhouette (visual discrimination)
+- **Connect the Dots** — tap numbers 1→N in order (number sequence; difficulty 2+)
+- **Same or Different?** — compare two heroes (the same/different concept)
+- **I Spy** — find the one target in a crowded field (visual search; difficulty 2+)
+- **Echo** — repeat the mascot's color sequence (working memory; difficulty 3+)
 
 **Fun-leaning** (cause-and-effect & surprise — the Toca/Sago ethos):
 - **Pop!** — pop every floating bubble
 - **Peekaboo** — find the hero hiding behind a cover
 - **Tickle** — poke the giggling mascot N times (counting in disguise)
+- **Feed Me** — feed the hungry mascot N treats (counting + caring story)
 
 Adding another game is just one module exporting `create(theme, count)` plus a
 line in `src/game/minigames.js`. Two themes (**trucks**, **unicorns**) skin them all.
@@ -57,10 +63,14 @@ Profiles and settings are saved on the device (localStorage).
 - **Illustrated animated scenes** (Sago Mini-ish) behind every screen: drifting
   clouds, a pulsing sun, rolling hills / a flowery rainbow meadow.
 - **Record the voice in your own voice** — under the parent gear, a 🎙️ screen lets
-  you record a small vocabulary (~40 short clips: "Find the…", colors, shapes,
-  numbers, "truck/trucks", cheers). The game stitches them into every prompt and
-  speaks them in your voice; anything not yet recorded falls back to device speech.
-  Clips are stored on the device (IndexedDB) and work offline.
+  you record a small vocabulary (short clips: "Find the…", colors, shapes,
+  numbers, "truck/trucks", cheers, game prompts). The game stitches them into
+  every prompt. **Per-word mixing:** record a few or all — each word you record
+  plays in your voice in *every* prompt that uses it, anywhere in the game; words
+  you haven't recorded fall back to device speech for that word only. Once every
+  word in a prompt is recorded, it's fully your voice. Clips are stored on the
+  device (IndexedDB), kept with persistent-storage so they survive across
+  sessions, and work offline.
 - Juicier choice cards (chunky shadow + squish), bigger first-try celebrations.
 
 ## Roadmap (next)

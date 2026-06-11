@@ -145,9 +145,11 @@ export class GameEngine {
     }
     this.say(p.speechTokens, p.text, false);
 
-    // Each mini-game owns its board layout; reset inline styles between rounds.
+    // Each mini-game owns its board layout; fully reset it between rounds
+    // (inline styles, classes, and any data-* a previous game left behind).
     this.elChoices.style.cssText = '';
     this.elChoices.className = 'choices';
+    Object.keys(this.elChoices.dataset).forEach((k) => delete this.elChoices.dataset[k]);
     this.game.mount(this.elChoices, {
       theme,
       choiceCount: count,

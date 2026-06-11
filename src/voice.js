@@ -12,6 +12,7 @@
    ========================================================================== */
 
 import { speak as ttsSpeak } from './audio.js';
+import { getSettings } from './state.js';
 
 /* ---- The vocabulary the parent records ---- */
 // Each entry: { token, label (shown), say (what to read aloud while recording) }
@@ -53,6 +54,12 @@ export const VOCAB_GROUPS = [
       { token: 'which_more', label: 'Which has more?', say: 'Which has more?' },
       { token: 'in_order', label: 'Smallest first', say: 'Tap them in order, smallest first!' },
       { token: 'sorting', label: 'Sort into baskets', say: 'Put each one in the matching basket!' },
+      { token: 'shadow', label: 'Match the shadow', say: 'Which one fits the shadow?' },
+      { token: 'connect', label: 'Numbers in order', say: 'Tap the numbers in order!' },
+      { token: 'same_diff', label: 'Same or different?', say: 'Are they the same?' },
+      { token: 'feed', label: 'Feed them…', say: 'Feed them' },
+      { token: 'treats', label: '…treats!', say: 'treats!' },
+      { token: 'echo', label: 'Watch then copy', say: 'Watch, then copy!' },
     ]),
   },
   {
@@ -167,50 +174,85 @@ export const isRecorded = (token) => recordedSet.has(token);
 export const recordedCount = () => recordedSet.size;
 export const hasAnyVoice = () => recordedSet.size > 0;
 
+// token -> the word/phrase it represents, for per-word TTS of un-recorded tokens.
+const SAY = Object.fromEntries(ALL_VOCAB.map((v) => [v.token, v.say]));
+
+/**
+ * Ask the browser to keep our recordings durably (so iOS/Safari is far less
+ * likely to evict them). Safe to call repeatedly; ignored where unsupported.
+ */
+export async function requestPersistence() {
+  try {
+    if (navigator.storage && navigator.storage.persist) await navigator.storage.persist();
+  } catch { /* ignore */ }
+}
+
 /* ---- Playback ---- */
 let currentAudio = null;
+let playId = 0; // bumps on every new utterance so stale sequences abort
 
-/** Stop any in-flight recorded playback. */
+/** Stop any in-flight playback (recorded clips and speech synthesis). */
 export function stopVoice() {
+  playId += 1;
   if (currentAudio) {
     currentAudio.onended = null;
+    currentAudio.onerror = null;
     currentAudio.pause();
     currentAudio = null;
   }
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
 }
 
 /**
  * Speak a prompt. `tokens` is the ordered list of vocabulary tokens; `fallback`
- * is the plain sentence for TTS. If every token is recorded, play the human
- * clips in sequence; otherwise speak the fallback with TTS.
+ * is the plain sentence for TTS.
+ *   • No tokens recorded yet  -> speak the whole natural sentence with TTS.
+ *   • Every token recorded    -> play the parent's clips back to back.
+ *   • Partially recorded      -> MIX: play each recorded clip, and speak the
+ *     missing words with TTS, in order. This is the key bit: once you record a
+ *     word, it shows up in EVERY prompt that uses it, everywhere in the game.
  */
 export async function speakTokens(tokens, fallback, { interrupt = true } = {}) {
-  if (interrupt) { stopVoice(); }
-  const usable = tokens && tokens.length && tokens.every((t) => recordedSet.has(t));
-  if (!usable) {
-    ttsSpeak(fallback, { interrupt });
-    return;
+  if (!getSettings().voiceOn) return;
+  if (interrupt) stopVoice();
+  if (!tokens || !tokens.length) { ttsSpeak(fallback, { interrupt }); return; }
+  if (!tokens.some((t) => recordedSet.has(t))) { ttsSpeak(fallback, { interrupt }); return; }
+
+  const myId = ++playId;
+  const parts = [];
+  for (const t of tokens) {
+    if (recordedSet.has(t)) {
+      const blob = await idbGet(t);
+      if (blob) { parts.push({ type: 'audio', url: URL.createObjectURL(blob) }); continue; }
+    }
+    parts.push({ type: 'tts', text: SAY[t] || t });
   }
-  try {
-    const blobs = await Promise.all(tokens.map((t) => idbGet(t)));
-    if (blobs.some((b) => !b)) { ttsSpeak(fallback, { interrupt }); return; }
-    playSequence(blobs.map((b) => URL.createObjectURL(b)));
-  } catch {
-    ttsSpeak(fallback, { interrupt });
-  }
+  if (myId !== playId) { parts.forEach((p) => p.url && URL.revokeObjectURL(p.url)); return; }
+  playParts(parts, myId);
 }
 
-function playSequence(urls) {
-  stopVoice();
+function playParts(parts, myId) {
   let i = 0;
   const next = () => {
-    if (i >= urls.length) return;
-    const url = urls[i++];
-    const audio = new Audio(url);
-    currentAudio = audio;
-    audio.onended = () => { URL.revokeObjectURL(url); next(); };
-    audio.onerror = () => { URL.revokeObjectURL(url); next(); };
-    audio.play().catch(() => { next(); });
+    if (myId !== playId) { parts.slice(i).forEach((p) => p.url && URL.revokeObjectURL(p.url)); return; }
+    if (i >= parts.length) return;
+    const part = parts[i++];
+    if (part.type === 'audio') {
+      const audio = new Audio(part.url);
+      currentAudio = audio;
+      audio.onended = () => { URL.revokeObjectURL(part.url); next(); };
+      audio.onerror = () => { URL.revokeObjectURL(part.url); next(); };
+      audio.play().catch(() => { URL.revokeObjectURL(part.url); next(); });
+    } else {
+      if (!('speechSynthesis' in window)) { next(); return; }
+      try {
+        const u = new SpeechSynthesisUtterance(part.text);
+        u.rate = 0.95; u.pitch = 1.1;
+        u.onend = () => next();
+        u.onerror = () => next();
+        window.speechSynthesis.speak(u);
+      } catch { next(); }
+    }
   };
   next();
 }

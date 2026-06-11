@@ -9,10 +9,11 @@
 
 import {
   VOCAB_GROUPS, ALL_VOCAB, saveClip, getClip, deleteClip,
-  refreshRecorded, isRecorded, recordedCount, stopVoice,
+  refreshRecorded, isRecorded, recordedCount, stopVoice, requestPersistence,
 } from '../voice.js';
 
 export function renderRecord({ root, show }) {
+  requestPersistence(); // keep recordings durable across sessions
   let stream = null;
   let recorder = null;
   let activeToken = null;
@@ -27,9 +28,10 @@ export function renderRecord({ root, show }) {
       <div class="screen" style="justify-content:flex-start;overflow:auto;padding-top:calc(var(--gap)*2)">
         <button class="iconbtn back-btn" id="back">⬅️</button>
         <h1 class="title" style="font-size:clamp(1.5rem,5.5vmin,2.6rem)">🎙️ Record Your Voice</h1>
-        <p class="subtitle" style="max-width:42ch">
-          Tap <b>●</b> and say each word, then tap <b>■</b> to stop. The game speaks
-          the prompts in your voice. <b>${recordedCount()}/${total}</b> recorded.
+        <p class="subtitle" style="max-width:46ch">
+          Tap <b>●</b> and say each word, then tap <b>■</b> to stop. Record a few or
+          all — every word you record shows up in your voice <b>everywhere you play</b>,
+          and it's saved on this device. <b>${recordedCount()}/${total}</b> recorded.
         </p>
         <div id="micnote" class="subtitle" hidden></div>
         <div class="settings-list">
