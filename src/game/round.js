@@ -38,3 +38,25 @@ export function distinctInts(min, max, n) {
   for (let i = min; i <= max; i++) pool.push(i);
   return sample(pool, Math.min(n, pool.length));
 }
+
+/* ---- Shared board helpers (used by every mini-game) ---- */
+
+/** Lay out a board element as a tidy grid for `n` cards (fits any panel). */
+export function layoutGrid(board, n) {
+  const cols = n === 4 ? 2 : n <= 3 ? n : n <= 6 ? 3 : 4;
+  const rows = Math.ceil(n / cols);
+  board.style.display = 'grid';
+  board.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
+  board.style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
+}
+
+/** Make a standard tappable choice card. Fires on pointerdown (toddler-safe). */
+export function choiceButton(html, onTap, { target = false, extraClass = '' } = {}) {
+  const b = document.createElement('button');
+  b.className = 'choice' + (extraClass ? ' ' + extraClass : '');
+  b.innerHTML = html;
+  if (target) b.dataset.target = '1'; // marks the "right" card(s) for hints + tests
+  b.addEventListener('pointerdown', () => onTap(b));
+  return b;
+}
+

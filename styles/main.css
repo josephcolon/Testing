@@ -529,3 +529,56 @@ body {
   .cloud, .sun, .mascot .mascot-svg, .m-eyes,
   .anim-bounce .mascot-svg, .anim-shake .mascot-svg, .anim-wave .mascot-svg { animation: none; }
 }
+
+/* ==========================================================================
+   v3 — mini-game variety: tap-all, sizes, pattern, memory.
+   ========================================================================== */
+
+/* Found targets (Tap All / Count Out) */
+.choice.found { outline: 6px solid #38d39f; outline-offset: -6px; position: relative; }
+.choice.found::after {
+  content: "✓";
+  position: absolute; top: 5%; right: 7%;
+  width: 1.4em; height: 1.4em;
+  display: grid; place-items: center;
+  background: #38d39f; color: #fff; font-weight: 800;
+  border-radius: 50%; box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+}
+
+/* Sizes game — heroes scaled inside the card */
+.choice .sizer { display: flex; align-items: center; justify-content: center; height: 100%; width: 100%; }
+.choice .sizer svg { width: 100%; height: auto; max-height: 100%; animation: none; }
+
+/* Pattern game — sequence row + choice row */
+.choices .pattern-seq {
+  display: flex; gap: 2%; justify-content: center; align-items: center;
+  flex: 1; padding: 2%;
+}
+.ptile {
+  background: #fff; border-radius: 16px; box-shadow: var(--shadow);
+  width: 13%; aspect-ratio: 1 / 1; display: grid; place-items: center; flex: none;
+}
+.ptile svg { width: 84%; height: 84%; }
+.ptile.q { font-size: clamp(1.4rem, 7vmin, 3rem); font-weight: 800; color: #b9b9c6; background: rgba(255,255,255,0.6); }
+.pattern-choices {
+  display: flex; gap: var(--gap); justify-content: center; align-items: center;
+  flex: 1; padding: 0 4% 4%;
+}
+.pattern-choices .choice { flex: 0 1 20%; aspect-ratio: 1 / 1; min-height: 0; }
+
+/* Memory game — flip cards */
+.mcard { position: relative; padding: 0; overflow: hidden; }
+.mface {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  border-radius: inherit;
+}
+.mface.back {
+  background: linear-gradient(160deg, var(--accent), #ffb84d);
+  font-size: clamp(2rem, 9vmin, 4.5rem);
+}
+.mface.front { display: none; background: #fff; }
+.mface.front svg { width: 82%; height: 82%; }
+.mcard.up .front, .mcard.matched .front { display: grid; }
+.mcard.up .back, .mcard.matched .back { display: none; }
+.mcard.up { animation: pop 0.3s ease; }
+.mcard.matched { outline: 6px solid #38d39f; outline-offset: -6px; }

@@ -5,10 +5,20 @@ that's the only thing a child ever has to do. Every prompt is **spoken aloud**, 
 a pre-reader can play with little to no help.
 
 ## What kids learn
-- **Colors & Shapes** — "Find the red one!", "Find the star!"
-- **Counting** — "Tap three trucks!"
+The engine is a **mini-game host** — each round it picks a different game (no
+immediate repeats), all sharing the scene, mascots, voice, and rewards:
 
-Two themes skin the identical game: **trucks** and **unicorns**.
+- **Find It** — "Find the red one!" / "Find the star!" (colors & shapes)
+- **Count the Group** — "Tap three trucks!" (tap the group of N)
+- **Count Out** — "Tap three trucks!" (tap N of them, one at a time)
+- **Tap All** — "Tap all the red ones!" (find every target among distractors)
+- **Odd One Out** — "Which one is different?"
+- **Sizes** — "Tap the biggest / smallest one!"
+- **Pattern** — "What comes next?" (A-B-A-B… ; difficulty 2+)
+- **Memory Match** — "Find the matching pairs!" (flip & match)
+
+Adding another game is just one module exporting `create(theme, count)` plus a
+line in `src/game/minigames.js`. Two themes (**trucks**, **unicorns**) skin them all.
 
 ## Play modes
 - **1 Player**

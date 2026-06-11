@@ -1,18 +1,18 @@
 /* ==========================================================================
-   engine.js — the core game loop, shared by all three play modes.
+   engine.js — the core game loop / mini-game host, shared by all three modes.
 
-   One engine drives a single play "panel". Modes are thin configs over it:
-     • 1 Player      -> one engine, one profile
-     • 2P turn-based -> one engine, two profiles, turnBased: true
-     • 2P split      -> two engines side by side, one profile each
+   The engine owns everything around a round — the illustrated scene, the
+   talking mascot, the speech bubble, scoring, sticker rewards, confetti, sound,
+   and the recorded/synthesised voice. The actual round is delegated to a
+   MINI-GAME (see ../activities/* and ./minigames.js), which renders its own
+   board and reports back through a small API:
 
-   The panel has an illustrated animated SCENE behind it and a talking MASCOT
-   who gives the prompt from a speech bubble and reacts to answers (happy on a
-   correct tap, gently encouraging on a wrong one). Prompts play in the parent's
-   recorded voice when available, otherwise fall back to speech synthesis.
+     api.progress()       a partial step went right (one of several targets)
+     api.wrong(el, opts)  a wrong tap (opts.dim=false to not grey it out)
+     api.solved(el)       the round is complete (el = card to celebrate on)
 
-   Toddler-input notes: choice cards listen on pointerdown (not click) because
-   young children's taps slip a few pixels, which suppresses click events.
+   Modes are thin configs: 1 player, 2-player turn-based, 2-player split.
+   Choice cards fire on pointerdown so a toddler's slipping tap still registers.
    ========================================================================== */
 
 import { THEMES, applyThemePalette } from '../themes.js';
@@ -22,8 +22,7 @@ import { speakTokens, PRAISE_TOKENS } from '../voice.js';
 import { mascotSVG } from '../mascots.js';
 import { sceneHTML } from '../ui/scene.js';
 import { burst } from '../ui/confetti.js';
-import { makeColorsOrShapesRound } from '../activities/colorsShapes.js';
-import { makeCountingRound } from '../activities/counting.js';
+import { pickGame } from './minigames.js';
 
 const REWARD_EVERY = 5; // stickers between celebration screens
 const HINT_AFTER_MS = 7000; // gently wiggle the answer if a child is stuck
@@ -49,8 +48,8 @@ export class GameEngine {
   get activeProfile() { return this.profiles[this.activeIndex]; }
   get activeTheme() { return THEMES[this.activeProfile.theme] || THEMES.trucks; }
   get sfx() { return themeSounds(this.activeTheme.id); }
+  get prompt() { return this.game?.prompt; }
 
-  /** Speak prompt tokens; split panels queue so they never cancel each other. */
   say(tokens, fallback, urgent = false) {
     speakTokens(tokens, fallback, { interrupt: urgent && !this.split });
   }
@@ -85,15 +84,14 @@ export class GameEngine {
       this.destroy();
       this.onExit?.();
     });
-    const repeat = () => this.round && this.say(this.round.speechTokens, this.round.promptSpeech, true);
+    const repeat = () => this.prompt && this.say(this.prompt.speechTokens, this.prompt.text, true);
     this.root.querySelector('.say-again').addEventListener('pointerdown', repeat);
     this.elMascot.addEventListener('pointerdown', repeat);
   }
 
   setMascot(mood, anim) {
     this.elMascot.innerHTML = mascotSVG(this.activeTheme.id, mood);
-    this.elMascot.className = 'mascot' + (anim ? ' anim-' + anim : '');
-    // Restart the animation cleanly.
+    this.elMascot.className = 'mascot';
     void this.elMascot.offsetWidth;
     if (anim) this.elMascot.classList.add('anim-' + anim);
   }
@@ -102,11 +100,9 @@ export class GameEngine {
     const theme = this.activeTheme;
     const target = this.split ? this.root : document.body;
     applyThemePalette(theme, target);
-    if (this.split) {
-      this.root.style.background = `linear-gradient(160deg, ${theme.bg[0]}, ${theme.bg[1]})`;
-    } else {
-      document.body.style.background = `linear-gradient(160deg, ${theme.bg[0]}, ${theme.bg[1]})`;
-    }
+    const bg = `linear-gradient(160deg, ${theme.bg[0]}, ${theme.bg[1]})`;
+    if (this.split) this.root.style.background = bg;
+    else document.body.style.background = bg;
     this.elScene.innerHTML = sceneHTML(theme.id);
   }
 
@@ -137,34 +133,27 @@ export class GameEngine {
 
     const theme = this.activeTheme;
     const count = choiceCountFor(this.activeProfile);
-    const useCounting = Math.random() < 0.5;
-    this.round = useCounting
-      ? makeCountingRound(theme, count)
-      : makeColorsOrShapesRound(theme, count);
+    const game = pickGame(this.activeProfile.difficulty || 1);
+    this.game = game.create(theme, count);
 
-    this.elPrompt.innerHTML =
-      (this.round.promptIcon || '') + `<span>${this.round.promptText}</span>`;
+    const p = this.game.prompt;
+    this.elPrompt.innerHTML = (p.icon || '') + `<span>${p.text}</span>`;
 
-    // Voice: announce the active child by name on turn change (TTS — names
-    // aren't in the recorded vocabulary), then the prompt.
     if (this.announceTurn) {
       this.say(null, `${this.activeProfile.name}, your turn!`, false);
       this.announceTurn = false;
     }
-    this.say(this.round.speechTokens, this.round.promptSpeech, false);
+    this.say(p.speechTokens, p.text, false);
 
-    const n = this.round.choices.length;
-    const cols = n === 4 ? 2 : n <= 3 ? n : 3;
-    const rows = Math.ceil(n / cols);
-    this.elChoices.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
-    this.elChoices.style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
-    this.elChoices.innerHTML = '';
-    this.round.choices.forEach((choice) => {
-      const btn = document.createElement('button');
-      btn.className = 'choice';
-      btn.innerHTML = choice.html;
-      btn.addEventListener('pointerdown', () => this.onChoice(btn, choice));
-      this.elChoices.appendChild(btn);
+    // Each mini-game owns its board layout; reset inline styles between rounds.
+    this.elChoices.style.cssText = '';
+    this.elChoices.className = 'choices';
+    this.game.mount(this.elChoices, {
+      theme,
+      choiceCount: count,
+      progress: () => this.onProgress(),
+      wrong: (el, opts) => this.onWrong(el, opts),
+      solved: (el) => this.onSolved(el),
     });
 
     this.armHint();
@@ -172,48 +161,50 @@ export class GameEngine {
 
   armHint() {
     clearTimeout(this.hintTimer);
+    if (!this.game.hintTarget) return;
     this.hintTimer = setTimeout(() => {
-      const idx = this.round.choices.findIndex((c) => c.correct);
-      const node = this.elChoices.children[idx];
+      const node = this.game.hintTarget();
       if (node && !this.locked) node.classList.add('hint');
     }, HINT_AFTER_MS);
   }
 
-  onChoice(btn, choice) {
-    if (this.locked || btn.classList.contains('dim')) return;
-    this.sfx.tap();
-    if (choice.correct) {
-      this.onCorrect(btn);
-    } else {
-      this.firstTry = false;
-      btn.classList.add('wrong');
-      this.sfx.wrong();
-      this.setMascot('oops', 'shake');
-      // Re-anchor the task: "Try again!" + repeat the prompt.
-      this.say(['try_again', ...this.round.speechTokens], `Try again! ${this.round.promptSpeech}`, true);
-      setTimeout(() => btn.classList.remove('wrong'), 400);
-      btn.classList.add('dim');
-      this.armHint();
-    }
+  onProgress() {
+    if (this.locked) return;
+    this.sfx.bonus();
+    this.setMascot('happy', 'bounce');
+    this.armHint();
   }
 
-  onCorrect(btn) {
+  onWrong(el, { dim = true } = {}) {
+    if (this.locked) return;
+    this.firstTry = false;
+    if (el) {
+      el.classList.add('wrong');
+      setTimeout(() => el.classList.remove('wrong'), 400);
+      if (dim) el.classList.add('dim');
+    }
+    this.sfx.wrong();
+    this.setMascot('oops', 'shake');
+    const p = this.game.prompt;
+    this.say(['try_again', ...p.speechTokens], `Try again! ${p.text}`, true);
+    this.armHint();
+  }
+
+  onSolved(el) {
+    if (this.locked) return;
     this.locked = true;
     clearTimeout(this.hintTimer);
-    btn.classList.remove('hint');
-    btn.classList.add('correct');
+    if (el) { el.classList.remove('hint'); el.classList.add('correct'); }
     this.sfx.correct();
     if (this.firstTry) this.sfx.bonus();
     this.setMascot('happy', 'bounce');
+    this.say([randomFrom(PRAISE_TOKENS)], randomFrom(this.activeTheme.praise), true);
 
-    const praiseTok = randomFrom(PRAISE_TOKENS);
-    this.say([praiseTok], randomFrom(this.activeTheme.praise), true);
-
-    const r = btn.getBoundingClientRect();
+    const rect = el ? el.getBoundingClientRect() : null;
     burst({
-      x: (r.left + r.width / 2) / window.innerWidth,
-      y: (r.top + r.height / 2) / window.innerHeight,
-      count: this.firstTry ? 110 : 60,
+      x: rect ? (rect.left + rect.width / 2) / window.innerWidth : 0.5,
+      y: rect ? (rect.top + rect.height / 2) / window.innerHeight : 0.4,
+      count: this.firstTry ? 110 : 70,
     });
 
     const id = this.activeProfile.id;

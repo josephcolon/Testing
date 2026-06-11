@@ -37,6 +37,18 @@ export const VOCAB_GROUPS = [
     ]),
   },
   {
+    title: 'Game prompts',
+    items: group([
+      { token: 'tap_all', label: 'Tap all the…', say: 'Tap all the' },
+      { token: 'different', label: 'Which is different?', say: 'Which one is different?' },
+      { token: 'match', label: 'Match the pairs', say: 'Find the matching pairs!' },
+      { token: 'biggest', label: 'Biggest', say: 'Tap the biggest one!' },
+      { token: 'smallest', label: 'Smallest', say: 'Tap the smallest one!' },
+      { token: 'next', label: 'What comes next?', say: 'What comes next?' },
+      { token: 'pop', label: 'Pop them!', say: 'Pop them all!' },
+    ]),
+  },
+  {
     title: 'Colors',
     items: group(
       ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink'].map((c) => ({
