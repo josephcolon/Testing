@@ -8,17 +8,34 @@ a pre-reader can play with little to no help.
 The engine is a **mini-game host** — each round it picks a different game (no
 immediate repeats), all sharing the scene, mascots, voice, and rewards:
 
-- **Find It** — "Find the red one!" / "Find the star!" (colors & shapes)
-- **Count the Group** — "Tap three trucks!" (tap the group of N)
-- **Count Out** — "Tap three trucks!" (tap N of them, one at a time)
-- **Tap All** — "Tap all the red ones!" (find every target among distractors)
-- **Odd One Out** — "Which one is different?"
-- **Sizes** — "Tap the biggest / smallest one!"
-- **Pattern** — "What comes next?" (A-B-A-B… ; difficulty 2+)
-- **Memory Match** — "Find the matching pairs!" (flip & match)
+**Learning-leaning** (each targets a documented preschool-math skill):
+- **Find It** — colors & shapes recognition
+- **Count the Group** — tap the group of N
+- **Count Out** — tap N, one at a time (one-to-one correspondence)
+- **How Many?** — see a set, tap the number (subitizing)
+- **Which Has More?** — compare quantities (magnitude)
+- **Tap All** — find every target among distractors
+- **Odd One Out** — spot the different one
+- **Sizes** — biggest / smallest
+- **In Order** — tap smallest→biggest (seriation; difficulty 2+)
+- **Sorting** — drop each into the matching basket (classification; difficulty 2+)
+- **Pattern** — what comes next, A-B-A-B (difficulty 2+)
+- **Memory Match** — flip & match pairs
+
+**Fun-leaning** (cause-and-effect & surprise — the Toca/Sago ethos):
+- **Pop!** — pop every floating bubble
+- **Peekaboo** — find the hero hiding behind a cover
+- **Tickle** — poke the giggling mascot N times (counting in disguise)
 
 Adding another game is just one module exporting `create(theme, count)` plus a
 line in `src/game/minigames.js`. Two themes (**trucks**, **unicorns**) skin them all.
+
+### Design basis
+The mix is grounded in the **Four Pillars of learning apps** (active, engaged,
+meaningful, socially interactive; Hirsh-Pasek et al., 2015) and core preschool
+math (subitizing, one-to-one correspondence, seriation, classification,
+comparison), balanced against the open-ended, no-fail, surprise-and-delight
+philosophy of Toca Boca / Sago Mini.
 
 ## Play modes
 - **1 Player**

@@ -18,8 +18,18 @@ import * as oddoneout from '../activities/oddoneout.js';
 import * as sizes from '../activities/sizes.js';
 import * as pattern from '../activities/pattern.js';
 import * as memory from '../activities/memory.js';
+import * as pop from '../activities/pop.js';
+import * as peekaboo from '../activities/peekaboo.js';
+import * as tickle from '../activities/tickle.js';
+import * as howmany from '../activities/howmany.js';
+import * as whichmore from '../activities/whichmore.js';
+import * as inorder from '../activities/inorder.js';
+import * as sorting from '../activities/sorting.js';
 
-export const GAMES = [findit, countgroup, countout, tapall, oddoneout, sizes, pattern, memory];
+export const GAMES = [
+  findit, countgroup, countout, tapall, oddoneout, sizes, pattern, memory,
+  pop, peekaboo, tickle, howmany, whichmore, inorder, sorting,
+];
 
 let last = null;
 

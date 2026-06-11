@@ -582,3 +582,55 @@ body {
 .mcard.up .back, .mcard.matched .back { display: none; }
 .mcard.up { animation: pop 0.3s ease; }
 .mcard.matched { outline: 6px solid #38d39f; outline-offset: -6px; }
+
+/* ==========================================================================
+   v4 — more mini-games: pop, peekaboo, tickle, how-many, which-more,
+   in-order, sorting.
+   ========================================================================== */
+
+/* Pop! — floating bubbles that vanish when tapped */
+.choice .bubble { width: 100%; height: 100%; display: grid; place-items: center; animation: float 3s ease-in-out infinite; animation-delay: var(--d, 0s); }
+.choice .bubble svg { width: 100%; height: 100%; }
+.choice.popped { visibility: hidden; transform: scale(0.2); transition: transform 0.18s ease; }
+@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7%); } }
+
+/* Peekaboo — covers that open */
+.choice .cover { font-size: clamp(2.4rem, 12vmin, 6rem); display: grid; place-items: center; height: 100%; }
+.choice.opened { animation: pop 0.4s ease; }
+
+/* Tickle — one big mascot to poke */
+.choice.tickle-target { width: min(60%, 46vmin); aspect-ratio: 1 / 1; background: transparent; box-shadow: none; }
+.choice.tickle-target svg { width: 100%; height: 100%; }
+.choice.tickle-target.giggle svg { animation: mascot-shake 0.4s ease; }
+
+/* How Many? — the set on top, number cards below */
+.hm-top {
+  flex: 0 0 38%;
+  display: grid; place-content: center;
+  grid-auto-flow: column; gap: 5%;
+  padding: clamp(6px, 2vmin, 18px);
+}
+.hm-top .hm-group { display: flex; gap: clamp(4px,1.6vmin,14px); align-items: center; justify-content: center; flex-wrap: wrap; }
+.hm-top .hm-group svg { width: clamp(40px, 11vmin, 96px); height: clamp(40px, 11vmin, 96px); }
+.hm-choices { flex: 1; }
+.numcard { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.1em; }
+.numcard .num { font-size: clamp(1.8rem, 9vmin, 4rem); font-weight: 800; color: var(--ink); line-height: 1; }
+.numcard .dots { font-size: clamp(0.7rem, 2.6vmin, 1.2rem); letter-spacing: 0.1em; color: #6c7be0; max-width: 4em; line-height: 1; }
+
+/* In Order — reuse .sizer; mark completed picks */
+.choice.done { opacity: 0.9; }
+
+/* Sorting — current item over a row of baskets */
+.choices .sort-item {
+  flex: 0 0 40%;
+  display: grid; place-items: center;
+  padding: clamp(6px, 2vmin, 18px);
+}
+.choices .sort-item svg { width: clamp(64px, 20vmin, 150px); height: clamp(64px, 20vmin, 150px); animation: bob 2.6s ease-in-out infinite; }
+.sort-baskets { flex: 1; display: flex; gap: var(--gap); justify-content: center; align-items: center; padding: 0 4% 4%; }
+.sort-baskets .basket {
+  flex: 0 1 26%; aspect-ratio: 1 / 1; min-height: 0;
+  border: 6px solid var(--bk); box-shadow: 0 10px 0 color-mix(in srgb, var(--bk) 35%, #0000), var(--shadow);
+}
+.basket-svg { font-size: clamp(2.2rem, 11vmin, 5rem); filter: drop-shadow(0 3px 4px rgba(0,0,0,0.2)); }
+.basket.thump { animation: pop 0.35s ease; }

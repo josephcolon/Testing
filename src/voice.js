@@ -46,6 +46,13 @@ export const VOCAB_GROUPS = [
       { token: 'smallest', label: 'Smallest', say: 'Tap the smallest one!' },
       { token: 'next', label: 'What comes next?', say: 'What comes next?' },
       { token: 'pop', label: 'Pop them!', say: 'Pop them all!' },
+      { token: 'peekaboo', label: 'Peekaboo!', say: 'Peekaboo! Find the hiding one!' },
+      { token: 'tickle', label: 'Tickle…', say: 'Tickle them' },
+      { token: 'times', label: '…times!', say: 'times!' },
+      { token: 'how_many', label: 'How many?', say: 'How many?' },
+      { token: 'which_more', label: 'Which has more?', say: 'Which has more?' },
+      { token: 'in_order', label: 'Smallest first', say: 'Tap them in order, smallest first!' },
+      { token: 'sorting', label: 'Sort into baskets', say: 'Put each one in the matching basket!' },
     ]),
   },
   {
