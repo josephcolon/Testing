@@ -1,37 +1,40 @@
 """Pluggable feeds for the local server.
 
-A feed is a small callable that returns the data to render on the panel. The base contract is
-deliberately tiny so adding a *new* feed (calendar, Home Assistant, CI status, any API) is a
-few lines. Concrete rendering (text vs pixels) is bound once the panel's payload format is
-known from Stage-0 recon.
+A feed is a callable returning a `Screen` (see glance.content). The contract is tiny so a
+*new* feed — calendar, Home Assistant, CI status, any API — is a few lines. Feeds are
+protocol-independent: they describe what to show, not how the panel receives it.
 
 Register a feed:
 
     from glance.server.feeds import feed
+    from glance.content import Screen
 
-    @feed("clock")
-    def clock() -> dict:
-        from datetime import datetime
-        return {"text": datetime.now().strftime("%H:%M")}
+    @feed("hello")
+    def hello() -> Screen:
+        return Screen.text("hi")
 """
 from __future__ import annotations
 
 from typing import Callable
 
-# name -> callable returning a dict of content (schema finalized after recon)
-REGISTRY: dict[str, Callable[[], dict]] = {}
+from ...content import Screen
+
+FeedFn = Callable[[], Screen]
+REGISTRY: dict[str, FeedFn] = {}
 
 
-def feed(name: str) -> Callable[[Callable[[], dict]], Callable[[], dict]]:
-    def register(fn: Callable[[], dict]) -> Callable[[], dict]:
+def feed(name: str) -> Callable[[FeedFn], FeedFn]:
+    def register(fn: FeedFn) -> FeedFn:
         REGISTRY[name] = fn
         return fn
     return register
 
 
-# A trivial built-in so the server has something to serve on day one.
-@feed("clock")
-def _clock() -> dict:
-    from datetime import datetime
+def get(name: str) -> FeedFn:
+    if name not in REGISTRY:
+        raise KeyError(f"unknown feed '{name}'. Available: {', '.join(sorted(REGISTRY)) or '(none)'}")
+    return REGISTRY[name]
 
-    return {"text": datetime.now().strftime("%H:%M")}
+
+# Importing builtin registers the bundled feeds.
+from . import builtin as _builtin  # noqa: E402,F401
