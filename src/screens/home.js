@@ -12,6 +12,7 @@ import { mascotSVG, mascotName } from '../mascots.js';
 import { sceneHTML } from '../ui/scene.js';
 
 const MODES = [
+  { id: 'journey', glyph: '🗺️', label: 'Adventure Map', mode: { kind: 'journey', need: 1 } },
   { id: 'solo',  glyph: '🚚',     label: '1 Player',      mode: { kind: 'solo', need: 1 } },
   { id: 'turns', glyph: '🚚🦄',   label: '2 Players · Take Turns', mode: { kind: 'turns', need: 2 } },
   { id: 'split', glyph: '🚚 ⏐ 🦄', label: '2 Players · Side by Side', mode: { kind: 'split', need: 2 } },

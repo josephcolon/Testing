@@ -17,8 +17,8 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 function defaultState() {
   return {
     profiles: [
-      { id: uid(), name: 'Buddy', theme: 'trucks', difficulty: 1, stickers: [] },
-      { id: uid(), name: 'Star', theme: 'unicorns', difficulty: 3, stickers: [] },
+      { id: uid(), name: 'Buddy', theme: 'trucks', difficulty: 1, stickers: [], journey: { unlocked: 1, stars: {} } },
+      { id: uid(), name: 'Star', theme: 'unicorns', difficulty: 3, stickers: [], journey: { unlocked: 1, stars: {} } },
     ],
     settings: { soundOn: true, voiceOn: true },
   };
@@ -33,7 +33,7 @@ function load() {
     const parsed = JSON.parse(raw);
     // Merge with defaults so missing keys never crash older saves.
     const profiles = (parsed.profiles?.length ? parsed.profiles : defaultState().profiles)
-      .map((p) => ({ stickers: [], ...p }));
+      .map((p) => ({ stickers: [], journey: { unlocked: 1, stars: {} }, ...p }));
     return {
       profiles,
       settings: { soundOn: true, voiceOn: true, ...(parsed.settings || {}) },
@@ -67,10 +67,28 @@ export function updateProfile(id, patch) {
 }
 
 export function addProfile() {
-  const p = { id: uid(), name: 'New', theme: 'trucks', difficulty: 1, stickers: [] };
+  const p = { id: uid(), name: 'New', theme: 'trucks', difficulty: 1, stickers: [], journey: { unlocked: 1, stars: {} } };
   state.profiles.push(p);
   save();
   return p;
+}
+
+/* ---- World map / journey progress (per child) ---- */
+export const JOURNEY_STOPS = 12;
+
+export function getJourney(profile) {
+  if (!profile.journey) profile.journey = { unlocked: 1, stars: {} };
+  return profile.journey;
+}
+
+/** Record a stop result: keep the best star count and unlock the next stop. */
+export function recordStopResult(profileId, stopN, stars) {
+  const p = getProfile(profileId);
+  if (!p) return;
+  const j = getJourney(p);
+  j.stars[stopN] = Math.max(j.stars[stopN] || 0, stars);
+  if (stars >= 1 && stopN + 1 <= JOURNEY_STOPS) j.unlocked = Math.max(j.unlocked, stopN + 1);
+  save();
 }
 
 /** Add a collectible sticker to a child's persistent sticker book. */

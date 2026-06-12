@@ -680,3 +680,45 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .choice .bubble, .sort-item svg, .feed-mascot svg { animation: none; }
 }
+
+/* ==========================================================================
+   v6 — world map (Adventure) + level progress pips + star results.
+   ========================================================================== */
+
+.map-screen { position: relative; z-index: 1; height: 100%; display: flex; flex-direction: column; }
+.map-head { display: flex; align-items: center; gap: var(--gap); padding: var(--gap); }
+.map-title { font-size: clamp(1.3rem, 5vmin, 2.6rem); margin: 0; }
+.map-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: clamp(40px,12vh,90px) 0 16vh; }
+.map-path { position: relative; display: flex; flex-direction: column-reverse; align-items: center; gap: clamp(26px, 6vmin, 56px); width: 100%; }
+.map-line {
+  position: absolute; top: 0; bottom: 0; left: 50%; width: 6px; transform: translateX(-50%);
+  background: repeating-linear-gradient(rgba(255,255,255,0.85) 0 14px, transparent 14px 30px);
+  border-radius: 3px;
+}
+.map-stop { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+.stop-bubble {
+  width: clamp(64px, 16vmin, 112px); aspect-ratio: 1 / 1;
+  border-radius: 50%; display: grid; place-items: center;
+  font-size: clamp(1.5rem, 6vmin, 3rem); font-weight: 800; color: #fff;
+  background: var(--accent); border: 5px solid #fff;
+  box-shadow: 0 8px 0 rgba(0,0,0,0.16), var(--shadow);
+}
+.map-stop.done .stop-bubble { background: #4caf50; }
+.map-stop.current .stop-bubble { animation: stoppulse 1.2s ease-in-out infinite; }
+.map-stop.locked { cursor: default; }
+.map-stop.locked .stop-bubble { background: #9aa0ad; color: #e9e9ee; box-shadow: var(--shadow); }
+.ministars { color: #ffd23f; letter-spacing: 1px; font-size: clamp(0.9rem, 3vmin, 1.4rem); text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+.map-mascot { position: absolute; bottom: 100%; margin-bottom: 2px; width: clamp(56px, 13vmin, 104px); }
+.map-mascot svg { width: 100%; height: 100%; }
+@keyframes stoppulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.08); } }
+
+/* Level progress pips in the topbar */
+.pips { display: flex; gap: 5px; }
+.pip { color: rgba(255,255,255,0.5); font-size: clamp(0.9rem, 3.4vmin, 1.5rem); }
+.pip.on { color: #ffd23f; }
+
+/* Star results overlay at the end of a stop */
+.reward.level-done .stars { display: flex; gap: 0.15em; }
+.reward.level-done .star { font-size: clamp(3rem, 17vmin, 8rem); color: rgba(255,255,255,0.35); }
+.reward.level-done .star.on { color: #ffd23f; animation: starpop 0.5s ease backwards; animation-delay: calc(var(--i) * 0.25s); }
+@keyframes starpop { 0% { transform: scale(0) rotate(-30deg); } 60% { transform: scale(1.3); } 100% { transform: scale(1); } }

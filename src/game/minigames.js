@@ -40,9 +40,17 @@ export const GAMES = [
 
 let last = null;
 
-/** Pick a random mini-game appropriate for the difficulty, avoiding a repeat. */
-export function pickGame(difficulty = 1) {
-  const eligible = GAMES.filter((g) => (g.minDifficulty || 1) <= difficulty);
+/**
+ * Pick a random mini-game appropriate for the difficulty, avoiding a repeat.
+ * @param {number} difficulty
+ * @param {string[]} [poolIds] optional whitelist of game ids (e.g. a map stop)
+ */
+export function pickGame(difficulty = 1, poolIds = null) {
+  let eligible = GAMES.filter((g) => (g.minDifficulty || 1) <= difficulty);
+  if (poolIds && poolIds.length) {
+    const scoped = eligible.filter((g) => poolIds.includes(g.id));
+    if (scoped.length) eligible = scoped; // fall back to all-eligible if pool empties out
+  }
   const pool = eligible.length ? eligible : GAMES;
   let g;
   do {

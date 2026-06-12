@@ -44,7 +44,12 @@ comparison), balanced against the open-ended, no-fail, surprise-and-delight
 philosophy of Toca Boca / Sago Mini.
 
 ## Play modes
-- **1 Player**
+- **Adventure Map** — a themed 12-stop journey per child. Each stop is a short
+  level (3–5 rounds) drawn from a curated, growing pool of the mini-games. Clear
+  a stop to earn 1–3 stars (by first-try accuracy) and unlock the next; the
+  child's mascot rides along the path. Progress is saved per child. Gentle and
+  no-fail — you always finish a stop, stars just reward doing it cleanly.
+- **1 Player** — quick endless play
 - **2 Players · Take Turns** — each child plays at their own difficulty
 - **2 Players · Side by Side** — split screen, simultaneous, multi-touch
 

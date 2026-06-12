@@ -58,7 +58,9 @@ export function renderPick({ root, show, params }) {
 
   function start(ids) {
     const players = ids.map((id) => profiles.find((p) => p.id === id));
-    show('game', { mode, players });
+    // Adventure goes to the world map first; other modes go straight to play.
+    if (mode.kind === 'journey') show('map', { profileId: players[0].id });
+    else show('game', { mode, players });
   }
 
   root.querySelector('#back').addEventListener('click', () => show('home'));

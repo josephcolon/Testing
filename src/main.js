@@ -13,6 +13,7 @@ import { renderSettings } from './screens/settings.js';
 import { renderGame } from './screens/game.js';
 import { renderStickers } from './screens/stickers.js';
 import { renderRecord } from './screens/record.js';
+import { renderMap } from './screens/map.js';
 import { refreshRecorded, requestPersistence } from './voice.js';
 
 const root = document.getElementById('app');
@@ -25,6 +26,7 @@ const screens = {
   game: renderGame,
   stickers: renderStickers,
   record: renderRecord,
+  map: renderMap,
 };
 
 export const app = {

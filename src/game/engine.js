@@ -29,14 +29,17 @@ const HINT_AFTER_MS = 7000; // gently wiggle the answer if a child is stuck
 const randomFrom = (a) => a[Math.floor(Math.random() * a.length)];
 
 export class GameEngine {
-  constructor({ root, profiles, turnBased = false, split = false, onExit }) {
+  constructor({ root, profiles, turnBased = false, split = false, onExit, level = null }) {
     this.root = root;
     this.profiles = profiles;
     this.turnBased = turnBased;
     this.split = split;
     this.onExit = onExit;
+    this.level = level; // { index, rounds, gamePool, onComplete } for a map stop
     this.activeIndex = 0;
     this.scores = Object.fromEntries(profiles.map((p) => [p.id, 0]));
+    this.roundsDone = 0;
+    this.levelFirstTry = 0;
     this.locked = false;
     this.firstTry = true;
     this.hintTimer = null;
@@ -108,6 +111,15 @@ export class GameEngine {
 
   renderScore() {
     const theme = this.activeTheme;
+    if (this.level) {
+      // Map stop: show the stop number and progress pips.
+      const pips = Array.from({ length: this.level.rounds }, (_, i) =>
+        `<span class="pip ${i < this.roundsDone ? 'on' : ''}">●</span>`).join('');
+      this.elBanner.hidden = false;
+      this.elBanner.innerHTML = `${theme.emoji} Stop ${this.level.index}`;
+      this.elScore.innerHTML = `<span class="pips">${pips}</span>`;
+      return;
+    }
     if (this.turnBased) {
       this.elScore.innerHTML = this.profiles
         .map((p) => {
@@ -133,7 +145,7 @@ export class GameEngine {
 
     const theme = this.activeTheme;
     const count = choiceCountFor(this.activeProfile);
-    const game = pickGame(this.activeProfile.difficulty || 1);
+    const game = pickGame(this.activeProfile.difficulty || 1, this.level?.gamePool);
     this.game = game.create(theme, count);
 
     const p = this.game.prompt;
@@ -211,13 +223,47 @@ export class GameEngine {
 
     const id = this.activeProfile.id;
     this.scores[id] += 1;
+    if (this.level) {
+      this.roundsDone += 1;
+      if (this.firstTry) this.levelFirstTry += 1;
+    }
     this.renderScore();
+
+    // In a map stop, finish the level once its rounds are done.
+    if (this.level && this.roundsDone >= this.level.rounds) {
+      setTimeout(() => this.finishLevel(), 1100);
+      return;
+    }
 
     const reachedReward = this.scores[id] % REWARD_EVERY === 0;
     setTimeout(() => {
       if (reachedReward) this.showReward(() => this.advanceTurnAndNext());
       else this.advanceTurnAndNext();
     }, 1100);
+  }
+
+  finishLevel() {
+    const theme = this.activeTheme;
+    const r = this.level.rounds;
+    const ft = this.levelFirstTry;
+    const stars = ft >= r ? 3 : ft >= Math.ceil(r / 2) ? 2 : 1;
+    addSticker(this.activeProfile.id, randomFrom(theme.stickerSet));
+    this.sfx.win();
+    burst({ x: 0.5, y: 0.4, count: 200 });
+    this.say(['reward'], 'You earned a sticker!', true);
+
+    const overlay = document.createElement('div');
+    overlay.className = 'reward level-done';
+    overlay.innerHTML = `
+      <div class="stars">${[1, 2, 3].map((i) => `<span class="star ${i <= stars ? 'on' : ''}" style="--i:${i}">★</span>`).join('')}</div>
+      <div class="cheer">${this.level.last ? 'You finished the adventure!' : 'Stop complete!'}</div>
+    `;
+    this.root.appendChild(overlay);
+    setTimeout(() => {
+      overlay.remove();
+      this.destroy();
+      this.level.onComplete?.({ stars });
+    }, 2600);
   }
 
   advanceTurnAndNext() {
