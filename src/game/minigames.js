@@ -31,17 +31,24 @@ import * as sameordifferent from '../activities/sameordifferent.js';
 import * as feedme from '../activities/feedme.js';
 import * as echo from '../activities/echo.js';
 import * as ispy from '../activities/ispy.js';
+import * as bubblepop from '../activities/bubblepop.js';
+import * as balloonpop from '../activities/balloonpop.js';
+import * as applecatch from '../activities/applecatch.js';
+import * as ballpit from '../activities/ballpit.js';
 
 export const GAMES = [
   findit, countgroup, countout, tapall, oddoneout, sizes, pattern, memory,
   pop, peekaboo, tickle, howmany, whichmore, inorder, sorting,
   shadowmatch, connectdots, sameordifferent, feedme, echo, ispy,
+  bubblepop, balloonpop, applecatch, ballpit,
 ];
 
-let last = null;
+// Remember the last few picks so the same game doesn't keep coming back —
+// this is what makes the variety actually *feel* big.
+const recent = [];
 
 /**
- * Pick a random mini-game appropriate for the difficulty, avoiding a repeat.
+ * Pick a random mini-game appropriate for the difficulty, avoiding recent repeats.
  * @param {number} difficulty
  * @param {string[]} [poolIds] optional whitelist of game ids (e.g. a map stop)
  */
@@ -52,10 +59,13 @@ export function pickGame(difficulty = 1, poolIds = null) {
     if (scoped.length) eligible = scoped; // fall back to all-eligible if pool empties out
   }
   const pool = eligible.length ? eligible : GAMES;
-  let g;
-  do {
-    g = pool[Math.floor(Math.random() * pool.length)];
-  } while (pool.length > 1 && g.id === last);
-  last = g.id;
+  // Avoid the last few games, but never the whole pool.
+  const memory = Math.min(recent.length, Math.max(0, Math.min(4, pool.length - 1)));
+  const avoid = new Set(recent.slice(-memory));
+  let fresh = pool.filter((g) => !avoid.has(g.id));
+  if (!fresh.length) fresh = pool;
+  const g = fresh[Math.floor(Math.random() * fresh.length)];
+  recent.push(g.id);
+  if (recent.length > 6) recent.shift();
   return g;
 }

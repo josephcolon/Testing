@@ -23,6 +23,7 @@ import { mascotSVG } from '../mascots.js';
 import { sceneHTML } from '../ui/scene.js';
 import { burst } from '../ui/confetti.js';
 import { pickGame } from './minigames.js';
+import { screenShake, squish } from './juice.js';
 
 const REWARD_EVERY = 5; // stickers between celebration screens
 const HINT_AFTER_MS = 7000; // gently wiggle the answer if a child is stuck
@@ -137,6 +138,7 @@ export class GameEngine {
 
   nextRound() {
     clearTimeout(this.hintTimer);
+    this.game?.teardown?.(); // stop any physics loop from the previous round
     this.locked = false;
     this.firstTry = true;
     this.applyTheme();
@@ -186,6 +188,7 @@ export class GameEngine {
     if (this.locked) return;
     this.sfx.bonus();
     this.setMascot('happy', 'bounce');
+    screenShake('sm');
     this.armHint();
   }
 
@@ -199,6 +202,7 @@ export class GameEngine {
     }
     this.sfx.wrong();
     this.setMascot('oops', 'shake');
+    screenShake('sm');
     const p = this.game.prompt;
     this.say(['try_again', ...p.speechTokens], `Try again! ${p.text}`, true);
     this.armHint();
@@ -208,10 +212,11 @@ export class GameEngine {
     if (this.locked) return;
     this.locked = true;
     clearTimeout(this.hintTimer);
-    if (el) { el.classList.remove('hint'); el.classList.add('correct'); }
+    if (el) { el.classList.remove('hint'); el.classList.add('correct'); squish(el); }
     this.sfx.correct();
     if (this.firstTry) this.sfx.bonus();
     this.setMascot('happy', 'bounce');
+    screenShake(this.firstTry ? 'lg' : 'sm');
     this.say([randomFrom(PRAISE_TOKENS)], randomFrom(this.activeTheme.praise), true);
 
     const rect = el ? el.getBoundingClientRect() : null;
@@ -295,6 +300,7 @@ export class GameEngine {
 
   destroy() {
     clearTimeout(this.hintTimer);
+    this.game?.teardown?.();
     this.root.innerHTML = '';
     this.root.className = '';
     this.root.style.background = '';

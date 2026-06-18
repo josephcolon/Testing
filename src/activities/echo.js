@@ -1,8 +1,9 @@
 /* ==========================================================================
    echo.js — "Watch, then copy!" (MEMORY: Simon-style sequence recall)
    The mascot lights up a short sequence of colored pads; the child repeats it.
-   Builds working memory and attention. Gentle: a wrong tap just restarts the
-   echo, never ends the round. Higher-difficulty only.
+   A big "Watch again 🔁" button replays the sequence any time, and a wrong tap
+   automatically shows it again — so a child who looked away is never stuck.
+   Gentle: a wrong tap just restarts the echo, never ends the round.
    ========================================================================== */
 
 import { COLORS } from '../themes.js';
@@ -16,10 +17,13 @@ export function create(theme, count) {
   const len = count <= 4 ? 2 : 3;
   const palette = sample(COLORS, pads);
   const seq = Array.from({ length: len }, () => randInt(0, pads - 1));
-  let board, expected = 0;
+  let board, expected = 0, els = [], demoTimers = [];
 
-  function flash(el) {
-    el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash');
+  const flash = (el) => { if (!el) return; el.classList.remove('flash'); void el.offsetWidth; el.classList.add('flash'); };
+
+  function playDemo() {
+    demoTimers.forEach(clearTimeout);
+    demoTimers = seq.map((padIdx, k) => setTimeout(() => flash(els[padIdx]), 450 + k * 650));
   }
 
   return {
@@ -27,10 +31,14 @@ export function create(theme, count) {
     mount(b, api) {
       board = b;
       expected = 0;
-      b.dataset.seq = seq.join(','); // (used by tests)
-      layoutGrid(b, pads);
-      b.innerHTML = '';
-      const els = palette.map((c, i) => {
+      b.style.display = 'flex';
+      b.style.flexDirection = 'column';
+      b.innerHTML = `<div class="echo-pads"></div><button class="btn echo-replay">🔁 Watch again</button>`;
+      const padWrap = b.querySelector('.echo-pads');
+      layoutGrid(padWrap, pads);
+      padWrap.dataset.seq = seq.join(','); // (used by tests)
+      b.dataset.seq = seq.join(',');
+      els = palette.map((c, i) => {
         const btn = document.createElement('button');
         btn.className = 'choice echo-pad';
         btn.dataset.pad = i;
@@ -42,16 +50,18 @@ export function create(theme, count) {
             if (expected >= seq.length) api.solved();
             else api.progress();
           } else {
-            expected = 0; // restart the echo
+            expected = 0;
             api.wrong(btn, { dim: false });
+            playDemo(); // show it again after a miss
           }
         });
-        b.appendChild(btn);
+        padWrap.appendChild(btn);
         return btn;
       });
-      // Show the sequence once (purely visual; taps are accepted any time).
-      seq.forEach((padIdx, k) => setTimeout(() => els[padIdx] && flash(els[padIdx]), 500 + k * 650));
+      b.querySelector('.echo-replay').addEventListener('pointerdown', (e) => { e.stopPropagation(); playDemo(); });
+      playDemo();
     },
+    teardown() { demoTimers.forEach(clearTimeout); },
     hintTarget() { return board && board.querySelector(`.echo-pad[data-pad="${seq[expected]}"]`); },
   };
 }

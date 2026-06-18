@@ -12,10 +12,10 @@ import { JOURNEY_STOPS } from '../state.js';
 
 // Games unlocked by the time you reach each tier (cumulative).
 const TIERS = [
-  ['pop', 'findit', 'peekaboo', 'tickle', 'countgroup'],                 // stops 1-3
-  ['tapall', 'howmany', 'feedme', 'oddoneout', 'sizes'],                 // stops 4-6
-  ['whichmore', 'memory', 'shadowmatch', 'sameordifferent', 'countout'], // stops 7-9
-  ['sorting', 'pattern', 'inorder', 'connectdots', 'ispy', 'echo'],      // stops 10-12
+  ['pop', 'bubblepop', 'ballpit', 'findit', 'peekaboo', 'tickle', 'countgroup'], // stops 1-3
+  ['tapall', 'howmany', 'feedme', 'balloonpop', 'applecatch', 'oddoneout', 'sizes'], // stops 4-6
+  ['whichmore', 'memory', 'shadowmatch', 'sameordifferent', 'countout'],         // stops 7-9
+  ['sorting', 'pattern', 'inorder', 'connectdots', 'ispy', 'echo'],              // stops 10-12
 ];
 
 function poolForStop(n) {

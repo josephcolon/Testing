@@ -9,7 +9,7 @@ let canvas, gctx, particles = [], raf = null;
 function ensureCanvas() {
   if (canvas) return;
   canvas = document.getElementById('confetti');
-  gctx = canvas.getContext('2d');
+  gctx = canvas && canvas.getContext ? canvas.getContext('2d') : null;
   resize();
   window.addEventListener('resize', resize);
 }
@@ -25,6 +25,7 @@ function resize() {
  */
 export function burst({ x = 0.5, y = 0.45, count = 90 } = {}) {
   ensureCanvas();
+  if (!gctx) return; // no 2D context (unsupported / headless) — skip gracefully
   const ox = x * canvas.width;
   const oy = y * canvas.height;
   for (let i = 0; i < count; i++) {

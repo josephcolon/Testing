@@ -722,3 +722,75 @@ body {
 .reward.level-done .star { font-size: clamp(3rem, 17vmin, 8rem); color: rgba(255,255,255,0.35); }
 .reward.level-done .star.on { color: #ffd23f; animation: starpop 0.5s ease backwards; animation-delay: calc(var(--i) * 0.25s); }
 @keyframes starpop { 0% { transform: scale(0) rotate(-30deg); } 60% { transform: scale(1.3); } 100% { transform: scale(1); } }
+
+/* ==========================================================================
+   v7 — physics bodies, game-feel juice (shake/squash), echo replay.
+   ========================================================================== */
+
+/* Physics bodies sit absolutely inside the board and are moved by transform. */
+.phys-body {
+  border: none; background: transparent; padding: 0; cursor: pointer;
+  display: grid; place-items: center; touch-action: none;
+}
+.phys-body > * { width: 100%; height: 100%; pointer-events: none; }
+
+/* Bubble: translucent disc with a sheen, hero inside */
+.phys-body .bub {
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255,255,255,0.9), rgba(255,255,255,0) 42%),
+    color-mix(in srgb, var(--c) 55%, #fff);
+  box-shadow: inset 0 0 0 3px rgba(255,255,255,0.6), 0 6px 14px rgba(0,0,0,0.18);
+  display: grid; place-items: center;
+}
+.phys-body .bub svg { width: 74%; height: 74%; }
+
+/* Balloon: rounded teardrop with a little knot */
+.phys-body .balloon { filter: drop-shadow(0 6px 8px rgba(0,0,0,0.22)); }
+.phys-body .bln {
+  display: block; width: 100%; height: 100%;
+  background: radial-gradient(circle at 34% 30%, rgba(255,255,255,0.85), rgba(255,255,255,0) 38%), var(--c);
+  border-radius: 50% 50% 50% 50% / 56% 56% 44% 44%;
+  position: relative;
+}
+.phys-body .bln::after {
+  content: ""; position: absolute; top: 98%; left: 50%; transform: translateX(-50%);
+  border: 6px solid transparent; border-top-color: var(--c);
+}
+
+/* Bouncy ball: glossy sphere */
+.phys-body .ballc {
+  display: block; width: 100%; height: 100%; border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, rgba(255,255,255,0.95), rgba(255,255,255,0) 45%), var(--c);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.22);
+}
+
+/* Falling treat */
+.phys-body.treat-body .treat-emoji { font-size: clamp(1.8rem, 8vmin, 3.4rem); }
+
+/* ---- Game-feel juice ---- */
+@keyframes shake-sm {
+  0%,100% { transform: translate(0,0); } 20% { transform: translate(-4px,2px); }
+  40% { transform: translate(4px,-2px); } 60% { transform: translate(-3px,-2px); }
+  80% { transform: translate(3px,2px); }
+}
+@keyframes shake-lg {
+  0%,100% { transform: translate(0,0) rotate(0); } 15% { transform: translate(-8px,4px) rotate(-0.4deg); }
+  30% { transform: translate(8px,-4px) rotate(0.4deg); } 45% { transform: translate(-7px,-5px) rotate(-0.3deg); }
+  60% { transform: translate(7px,5px) rotate(0.3deg); } 80% { transform: translate(-4px,2px) rotate(0); }
+}
+#app.shake-sm { animation: shake-sm 0.25s ease; }
+#app.shake-lg { animation: shake-lg 0.42s ease; }
+@keyframes squish-pop {
+  0% { transform: scale(1); } 30% { transform: scale(1.18, 0.86); }
+  60% { transform: scale(0.94, 1.08); } 100% { transform: scale(1); }
+}
+.squish { animation: squish-pop 0.32s ease; }
+
+/* Echo pads + replay button */
+.echo-pads { flex: 1; display: grid; gap: var(--gap); padding: var(--gap); min-height: 0; }
+.echo-replay { align-self: center; margin: 0 0 var(--gap); }
+
+@media (prefers-reduced-motion: reduce) {
+  #app.shake-sm, #app.shake-lg, .squish { animation: none; }
+}

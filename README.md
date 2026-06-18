@@ -33,6 +33,19 @@ immediate repeats), all sharing the scene, mascots, voice, and rewards:
 - **Tickle** — poke the giggling mascot N times (counting in disguise)
 - **Feed Me** — feed the hungry mascot N treats (counting + caring story)
 
+**Physics-based** (real 2D physics + "game feel" — `src/game/physics.js`):
+- **Bubble Pop** — bubbles float up, sway and jostle; tap to pop with a splatter
+- **Balloon Pop** — balloons rise on strings; pop every one of the named color
+- **Apple Catch** — treats tumble and bounce under gravity; tap N of them
+- **Ball Pit** — bouncy balls ricochet around; pop them all
+
+### Game feel (juice)
+A small custom 2D physics integrator (gravity, buoyancy, drag, bouncy walls,
+soft repulsion) moves real DOM bodies, and a juice layer (`src/game/juice.js`)
+adds screen shake, squash-and-stretch, and splatter on every meaningful action.
+Grounded in the "Juice It or Lose It" / "Art of Screenshake" playbook. The game
+picker also avoids recently-played games so the variety actually feels big.
+
 Adding another game is just one module exporting `create(theme, count)` plus a
 line in `src/game/minigames.js`. Two themes (**trucks**, **unicorns**) skin them all.
 
