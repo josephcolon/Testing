@@ -25,9 +25,10 @@ export function create(theme, count) {
     mount(b, api) {
       board = b;
       b.style.position = 'relative'; b.style.display = 'block'; b.style.overflow = 'hidden';
-      world = createWorld(b, { gravity: 1700, drag: 0.25, restitution: 0.5 });
+      // Low gravity + drag => a slow, floaty descent kids can tap mid-air.
+      world = createWorld(b, { gravity: 620, drag: 0.45, restitution: 0.4, repel: true });
       const { w, h } = world.bounds();
-      const r = Math.max(26, Math.min(56, Math.min(w, h) * 0.12));
+      const r = Math.max(28, Math.min(58, Math.min(w, h) * 0.13));
       for (let i = 0; i < total; i++) {
         const el = makeBody('treat-body', `<span class="treat-emoji">${treat}</span>`, (node) => {
           if (node._dead || taps >= target) return;
@@ -39,8 +40,9 @@ export function create(theme, count) {
           else api.progress();
         });
         const body = world.add(el, {
-          r, x: rand(r, w - r), y: rand(-h * 0.4, r), // start above the view
-          vx: rand(-40, 40), vy: rand(0, 60), va: rand(-2, 2), restitution: 0.5, drag: 0.25,
+          // Stagger the start heights so they drift in a few at a time.
+          r, x: rand(r, w - r), y: -rand(r, h * 1.1),
+          vx: rand(-30, 30), vy: rand(0, 30), va: rand(-1.5, 1.5), restitution: 0.4, drag: 0.45,
         });
       }
       world.start();
