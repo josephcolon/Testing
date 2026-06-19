@@ -35,12 +35,22 @@ import * as bubblepop from '../activities/bubblepop.js';
 import * as balloonpop from '../activities/balloonpop.js';
 import * as applecatch from '../activities/applecatch.js';
 import * as ballpit from '../activities/ballpit.js';
+import * as letterfind from '../activities/letterfind.js';
+import * as numberfind from '../activities/numberfind.js';
+import * as lettermatch from '../activities/lettermatch.js';
+import * as abcorder from '../activities/abcorder.js';
+import * as startingsound from '../activities/startingsound.js';
+import * as letterpop from '../activities/letterpop.js';
+import * as traceletters from '../activities/traceletters.js';
+import * as tracenumbers from '../activities/tracenumbers.js';
 
 export const GAMES = [
   findit, countgroup, countout, tapall, oddoneout, sizes, pattern, memory,
   pop, peekaboo, tickle, howmany, whichmore, inorder, sorting,
   shadowmatch, connectdots, sameordifferent, feedme, echo, ispy,
   bubblepop, balloonpop, applecatch, ballpit,
+  letterfind, numberfind, lettermatch, abcorder, startingsound, letterpop,
+  traceletters, tracenumbers,
 ];
 
 // Remember the last few picks so the same game doesn't keep coming back —

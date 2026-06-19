@@ -794,3 +794,39 @@ body {
 @media (prefers-reduced-motion: reduce) {
   #app.shake-sm, #app.shake-lg, .squish { animation: none; }
 }
+
+/* ==========================================================================
+   v8 — ABCmouse-style literacy: letters, numbers, phonics, tracing.
+   ========================================================================== */
+
+/* Big glyphs in choice cards (letters & numbers) */
+.glyph-letter {
+  font-size: clamp(2.4rem, 13vmin, 7rem); font-weight: 800; color: var(--ink);
+  line-height: 1; font-family: "Baloo 2", system-ui, sans-serif;
+}
+.glyph-letter.lower { text-transform: lowercase; }
+.glyph-mini {
+  display: inline-grid; place-items: center; min-width: 1.4em; height: 1.4em;
+  background: #fff; color: var(--ink); border-radius: 0.25em; padding: 0 0.18em;
+  font-weight: 800; box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+.emoji-pic { font-size: clamp(2.4rem, 13vmin, 6.5rem); line-height: 1; }
+
+/* Letter bubbles (Pop the letter) */
+.phys-body .bub .bub-letter {
+  font-size: clamp(1.4rem, 6vmin, 2.6rem); font-weight: 800; color: var(--ink);
+}
+
+/* Tracing surface */
+.trace-surface { z-index: 1; }
+.trace-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.trace-guide { fill: none; stroke: rgba(255,255,255,0.85); stroke-width: 10; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 2 16; opacity: 0.9; }
+.trace-trail { fill: none; stroke: var(--accent); stroke-width: 12; stroke-linecap: round; stroke-linejoin: round; }
+.trace-dot {
+  position: absolute; width: clamp(14px, 3.4vmin, 26px); height: clamp(14px, 3.4vmin, 26px);
+  margin-left: calc(clamp(14px, 3.4vmin, 26px) / -2); margin-top: calc(clamp(14px, 3.4vmin, 26px) / -2);
+  border-radius: 50%; background: rgba(255,255,255,0.55); box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  pointer-events: none;
+}
+.trace-dot.on { background: var(--accent); }
+.trace-dot.target { background: #fff; animation: stoppulse 1s ease-in-out infinite; box-shadow: 0 0 0 6px rgba(255,255,255,0.4); }

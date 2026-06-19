@@ -60,7 +60,19 @@ export const VOCAB_GROUPS = [
       { token: 'feed', label: 'Feed them…', say: 'Feed them' },
       { token: 'treats', label: '…treats!', say: 'treats!' },
       { token: 'echo', label: 'Watch then copy', say: 'Watch, then copy!' },
+      { token: 'find_letter', label: 'Find the letter…', say: 'Find the letter' },
+      { token: 'find_number', label: 'Find the number…', say: 'Find the number' },
+      { token: 'pop_letter', label: 'Pop the letter…', say: 'Pop the letter' },
+      { token: 'starts_with', label: 'Which starts with…', say: 'Which one starts with' },
+      { token: 'abc_order', label: 'Letters in order', say: 'Tap the letters in order!' },
+      { token: 'trace', label: 'Trace the…', say: 'Trace the' },
     ]),
+  },
+  {
+    title: 'Letters (A–Z) — optional',
+    items: group('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map((L) => ({
+      token: `l_${L.toLowerCase()}`, label: L, say: L,
+    }))),
   },
   {
     title: 'Colors',

@@ -39,6 +39,17 @@ immediate repeats), all sharing the scene, mascots, voice, and rewards:
 - **Apple Catch** — treats tumble and bounce under gravity; tap N of them
 - **Ball Pit** — bouncy balls ricochet around; pop them all
 
+**Literacy & numeracy** (ABCmouse-style — letters, phonics, tracing):
+- **Letter Find** — "Find the letter B!" (letter recognition)
+- **Find the Number** — "Find the number 5!" (numeral recognition)
+- **Letter Match** — match uppercase to lowercase ("Find the little b!")
+- **ABC Order** — tap consecutive letters in order (difficulty 2+)
+- **Starting Sound** — "Which starts with B?" picture phonics (difficulty 2+)
+- **Letter Pop** — pop the floating bubbles showing the named letter (physics)
+- **Trace Letters / Trace Numbers** — drag along the dotted glyph to form the
+  shape (`src/game/tracing.js` + `glyphs.js`); the signature ABCmouse mechanic,
+  building letter/number formation and fine-motor control. No fail state.
+
 ### Game feel (juice)
 A small custom 2D physics integrator (gravity, buoyancy, drag, bouncy walls,
 soft repulsion) moves real DOM bodies, and a juice layer (`src/game/juice.js`)
