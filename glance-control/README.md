@@ -7,23 +7,50 @@ The stock device is cloud-only: you configure it at glancesetup.com by MAC addre
 pulls rendered content from Glance's servers. This project replaces that with a local,
 scriptable workflow — send custom text, self-host the feeds, and add new ones.
 
-> Status: **recon tooling + a working, protocol-independent preview layer.** Pushing to the
-> physical panel (`glance text`, `glance feed add`) is filled in once Stage-0 recon below tells
-> us how the panel talks — but feeds, the content model, and previews already work with no device.
+> Status: **protocol cracked — live control works.** A HAR capture of the GLANCE web app
+> revealed the full config API, and `glance/client.py` now drives the real panel.
 
-## Try it now (no device needed)
+## The protocol (reverse-engineered from a HAR capture)
+
+The web app saves your whole panel config to one endpoint, addressed only by MAC — **no auth**:
+
+```
+POST https://passiveincomeconsultingllc.com/GLANCE/API/post.php      (text/plain)
+  body = {"O-freetext":"[{...x3}]","O-news":"{...}","O-lifestyle":"{...}",
+          "O-sports":"{...}","O-finance":"{...}","O-settings":"{...}",
+          "O-macAddress":"\"AA:BB:..\"", ...}   # each value is a JSON-encoded string
+  -> "Update successful."
+GET .../GLANCE/API/select.php?_st={standings|bt|nts|...}   # option lists
+GET .../API/sport.php , .../API/team.php                   # game / team menus
+```
+
+`O-freetext` is 3 slots of `{text,color,date}` (color "w"=white confirmed). Every feed
+(news, weather, clock, stocks, crypto, sports, lottery, gas prices…) is a boolean toggle.
+
+> ⚠️ **Security note:** the API has no authentication — anyone who knows a panel's MAC can
+> reconfigure it. That's why control is so easy, but keep your MAC private.
+
+## Use it
 
 ```bash
 pip install -e .
-glance feed list
-GLANCE_MESSAGE="BUILD PASSING" glance preview message --png out.png   # your custom text
-GLANCE_COUNTDOWN=2026-12-25 glance preview countdown --png out.png    # a new feed
+
+# Recommended: seed from your own capture so you don't overwrite other settings.
+export GLANCE_HAR=/path/to/your_capture.har
+
+glance text "GO GIANTS"                    # custom message to the panel now
+glance on lifestyle weather                # turn a feed on  (off: `glance off ...`)
+glance brightness 3 --label HIGH           # adjust brightness
+GLANCE_COUNTDOWN=2026-12-25 glance feed push countdown   # a NEW feed -> free-text slot
+
+# No device needed — render any feed locally as ASCII + PNG:
+glance preview message --png out.png
 ```
 
-`glance preview` renders a feed exactly as the panel will show it (ASCII to the terminal, PNG
-to a file). Feeds produce a protocol-independent content model (`glance/content.py`), so when
-recon lands we only add one adapter that turns that model into the panel's wire bytes — the
-feeds themselves don't change. New feeds are a few lines; `http_json` is the template for any API.
+`glance feed push` is the bridge for **new data feeds**: any local feed (calendar, CI status,
+`http_json` against any API) renders to text and lands in a free-text slot on the real panel.
+Config is a complete `Config` object seeded from your HAR, so pushes never clobber unrelated
+settings (the API has no read-back endpoint).
 
 ## What we know
 
