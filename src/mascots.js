@@ -49,7 +49,9 @@ function eyes(mood) {
 function truckMascot(mood) {
   return `
     <ellipse cx="50" cy="92" rx="30" ry="5" fill="rgba(0,0,0,0.12)"/>
-    <rect x="14" y="22" width="72" height="50" rx="16" fill="#ff6b5e" stroke="#c4453b" stroke-width="3"/>
+    <defs><linearGradient id="mtg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9a8f"/><stop offset="1" stop-color="#f0584b"/></linearGradient></defs>
+    <rect x="14" y="22" width="72" height="50" rx="18" fill="url(#mtg)" stroke="#a8362c" stroke-width="4"/>
+    <path d="M22 30 q26 -8 52 0 q-6 8 -52 5 z" fill="#fff" opacity="0.26"/>
     <rect x="20" y="16" width="20" height="12" rx="5" fill="#ffd23f" stroke="#c99a00" stroke-width="2"/>
     <circle cx="30" cy="13" r="3.5" fill="#ff5ea8"/>
     <rect x="22" y="58" width="56" height="12" rx="6" fill="#ffd23f" stroke="#c99a00" stroke-width="2"/>
@@ -66,7 +68,9 @@ function unicornMascot(mood) {
     <path d="M50 4 l5 16 -10 0 z" fill="#ffd23f" stroke="#c99a00" stroke-width="2"/>
     <path d="M24 24 l-6 -14 14 6 z" fill="#caa6f7" stroke="#9b5de5" stroke-width="2"/>
     <path d="M76 24 l6 -14 -14 6 z" fill="#caa6f7" stroke="#9b5de5" stroke-width="2"/>
-    <ellipse cx="50" cy="56" rx="34" ry="32" fill="#fff0fb" stroke="#d9a7e8" stroke-width="3"/>
+    <defs><linearGradient id="mug" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#f0dbf6"/></linearGradient></defs>
+    <ellipse cx="50" cy="56" rx="34" ry="32" fill="url(#mug)" stroke="#c389de" stroke-width="4"/>
+    <path d="M28 40 q22 -8 44 0 q-8 8 -44 5 z" fill="#fff" opacity="0.4"/>
     <path d="M30 22 q-12 8 -8 26 q6 -10 12 -8 q-6 -10 4 -16z" fill="#ff7bc0"/>
     <path d="M70 22 q12 8 8 26 q-6 -10 -12 -8 q6 -10 -4 -16z" fill="#7ec8ff"/>
     <path d="M50 18 q-10 4 -8 16 q6 -8 16 0 q2 -12 -8 -16z" fill="#ffd23f"/>

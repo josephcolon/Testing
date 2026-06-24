@@ -48,85 +48,74 @@ const lighten = (hex, amt = 0.4) => {
 /* ---- Hero sprites (colorable, with faces) ---- */
 
 function truckSVG(hex) {
-  const dark = darken(hex);
-  const gid = 'tg' + hex.slice(1); // same color => same gradient, ids may repeat safely
+  const out = darken(hex, 0.5);   // bold dark outline
+  const lo = darken(hex, 0.85);
+  const hi = lighten(hex, 0.6);
+  const gid = 'tg' + hex.slice(1);
   return `<svg viewBox="0 0 120 94" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="${lighten(hex)}"/>
-        <stop offset="1" stop-color="${hex}"/>
+        <stop offset="0" stop-color="${hi}"/><stop offset="0.55" stop-color="${hex}"/><stop offset="1" stop-color="${lo}"/>
       </linearGradient>
     </defs>
-    <!-- cargo peeking out of the dump bed -->
-    <circle cx="18" cy="30" r="8" fill="#c9b8a8" stroke="${dark}" stroke-width="2.5"/>
-    <circle cx="33" cy="27" r="9" fill="#bfae9e" stroke="${dark}" stroke-width="2.5"/>
-    <circle cx="48" cy="30" r="8" fill="#d4c4b4" stroke="${dark}" stroke-width="2.5"/>
-    <!-- dump bed -->
-    <rect x="4" y="30" width="62" height="36" rx="9" fill="url(#${gid})" stroke="${dark}" stroke-width="3"/>
-    <!-- cab -->
-    <path d="M66 38 h26 q5 0 8 4 l8 11 q2 3 2 6 v7 h-44 z"
-      fill="url(#${gid})" stroke="${dark}" stroke-width="3" stroke-linejoin="round"/>
-    <!-- windshield with eyes -->
-    <rect x="71" y="43" width="22" height="15" rx="5" fill="#eaf7ff" stroke="${dark}" stroke-width="2.5"/>
-    <circle cx="78" cy="50.5" r="3.4" fill="#2b2d5c"/>
-    <circle cx="87" cy="50.5" r="3.4" fill="#2b2d5c"/>
-    <circle cx="79.2" cy="49.3" r="1.2" fill="#fff"/>
-    <circle cx="88.2" cy="49.3" r="1.2" fill="#fff"/>
-    <!-- smile + cheek -->
-    <path d="M76 62 q7 5 14 0" fill="none" stroke="${dark}" stroke-width="2.6" stroke-linecap="round"/>
-    <circle cx="72" cy="61" r="2.6" fill="#ff9fc1" opacity="0.8"/>
-    <!-- bumper + headlight -->
-    <rect x="105" y="60" width="9" height="11" rx="3.5" fill="#cfd8e3" stroke="${dark}" stroke-width="2.5"/>
-    <circle cx="106" cy="55" r="3" fill="#ffe14d" stroke="${dark}" stroke-width="2"/>
-    <!-- wheels -->
-    <g>
-      <circle cx="24" cy="70" r="12" fill="#333a47"/><circle cx="24" cy="70" r="5" fill="#d9dee7"/>
-      <circle cx="48" cy="70" r="12" fill="#333a47"/><circle cx="48" cy="70" r="5" fill="#d9dee7"/>
-      <circle cx="94" cy="70" r="12" fill="#333a47"/><circle cx="94" cy="70" r="5" fill="#d9dee7"/>
+    <ellipse cx="60" cy="86" rx="46" ry="6" fill="rgba(0,0,0,0.16)"/>
+    <g stroke="${out}" stroke-width="5" stroke-linejoin="round">
+      <rect x="8" y="30" width="70" height="40" rx="14" fill="url(#${gid})"/>
+      <path d="M78 40 h14 q7 0 11 6 l7 11 q2 3 2 7 v6 h-45 z" fill="url(#${gid})"/>
     </g>
+    <rect x="82" y="46" width="22" height="16" rx="6" fill="#dff3ff" stroke="${out}" stroke-width="4"/>
+    <circle cx="88" cy="55" r="5" fill="#2b2d5c"/><circle cx="98" cy="55" r="5" fill="#2b2d5c"/>
+    <circle cx="89.8" cy="53" r="1.8" fill="#fff"/><circle cx="99.8" cy="53" r="1.8" fill="#fff"/>
+    <path d="M85 67 q9 7 19 0" fill="none" stroke="${out}" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="80" cy="64" r="3.4" fill="#ff9ec4" opacity="0.85"/>
+    <path d="M16 37 q22 -7 50 -1 q-6 7 -50 5 z" fill="#fff" opacity="0.32"/>
+    <circle cx="112" cy="60" r="3.6" fill="#ffe14d" stroke="${out}" stroke-width="2.5"/>
+    <g stroke="${out}" stroke-width="4.5">
+      <circle cx="33" cy="74" r="14" fill="#363b49"/><circle cx="92" cy="74" r="14" fill="#363b49"/>
+    </g>
+    <circle cx="33" cy="74" r="5.5" fill="#dfe4ee"/><circle cx="92" cy="74" r="5.5" fill="#dfe4ee"/>
   </svg>`;
 }
 
 function unicornSVG(hex) {
-  const dark = darken(hex);
+  const out = darken(hex, 0.5);
+  const lo = darken(hex, 0.85);
+  const hi = lighten(hex, 0.62);
   const gid = 'ug' + hex.slice(1);
   return `<svg viewBox="0 0 120 100" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="${gid}" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="${lighten(hex)}"/>
-        <stop offset="1" stop-color="${hex}"/>
+        <stop offset="0" stop-color="${hi}"/><stop offset="0.55" stop-color="${hex}"/><stop offset="1" stop-color="${lo}"/>
       </linearGradient>
     </defs>
-    <!-- rainbow tail -->
-    <path d="M22 58 q-14 2 -12 16" fill="none" stroke="#ff7bc0" stroke-width="5" stroke-linecap="round"/>
-    <path d="M24 63 q-11 3 -9 13" fill="none" stroke="#ffd23f" stroke-width="5" stroke-linecap="round"/>
-    <path d="M26 68 q-8 3 -6 10" fill="none" stroke="#7ec8ff" stroke-width="5" stroke-linecap="round"/>
-    <!-- legs -->
-    <rect x="32" y="78" width="8" height="16" rx="3.5" fill="url(#${gid})" stroke="${dark}" stroke-width="2.5"/>
-    <rect x="46" y="80" width="8" height="15" rx="3.5" fill="url(#${gid})" stroke="${dark}" stroke-width="2.5"/>
-    <rect x="60" y="80" width="8" height="15" rx="3.5" fill="url(#${gid})" stroke="${dark}" stroke-width="2.5"/>
-    <rect x="72" y="78" width="8" height="16" rx="3.5" fill="url(#${gid})" stroke="${dark}" stroke-width="2.5"/>
-    <!-- body -->
-    <ellipse cx="54" cy="64" rx="33" ry="21" fill="url(#${gid})" stroke="${dark}" stroke-width="3"/>
-    <!-- neck + head -->
-    <path d="M74 52 q4 -18 14 -26 l14 10 q4 10 -2 18 z" fill="url(#${gid})" stroke="${dark}" stroke-width="3" stroke-linejoin="round"/>
-    <circle cx="92" cy="36" r="15" fill="url(#${gid})" stroke="${dark}" stroke-width="3"/>
-    <!-- muzzle -->
-    <ellipse cx="102" cy="42" rx="8" ry="6.5" fill="${lighten(hex, 0.65)}" stroke="${dark}" stroke-width="2.5"/>
-    <circle cx="104" cy="42" r="1.4" fill="${dark}"/>
-    <!-- ear + golden horn -->
-    <path d="M80 24 l4 -10 l7 8 z" fill="url(#${gid})" stroke="${dark}" stroke-width="2.5" stroke-linejoin="round"/>
-    <path d="M92 21 l4 -17 l5 16 z" fill="#ffd23f" stroke="#c79a00" stroke-width="2.5" stroke-linejoin="round"/>
-    <!-- rainbow mane -->
-    <path d="M84 22 q-12 6 -14 22 q-2 12 -10 16" fill="none" stroke="#ff7bc0" stroke-width="6" stroke-linecap="round"/>
-    <path d="M89 24 q-10 8 -11 22 q-1 10 -7 15" fill="none" stroke="#ffd23f" stroke-width="5" stroke-linecap="round"/>
-    <path d="M93 28 q-8 8 -8 20" fill="none" stroke="#7ec8ff" stroke-width="4.5" stroke-linecap="round"/>
-    <!-- eye with lashes, highlight, blush -->
-    <circle cx="90" cy="35" r="4.2" fill="#2b2d5c"/>
-    <circle cx="91.4" cy="33.6" r="1.4" fill="#fff"/>
-    <path d="M85 30 l-3.4 -2" stroke="#2b2d5c" stroke-width="1.8" stroke-linecap="round"/>
-    <path d="M86.5 28 l-2.4 -3" stroke="#2b2d5c" stroke-width="1.8" stroke-linecap="round"/>
-    <circle cx="96" cy="44" r="3" fill="#ff9fc1" opacity="0.75"/>
+    <ellipse cx="58" cy="92" rx="42" ry="6" fill="rgba(0,0,0,0.16)"/>
+    <g fill="none" stroke-linecap="round">
+      <path d="M20 58 q-15 4 -13 20" stroke="#ff7bc0" stroke-width="7"/>
+      <path d="M24 62 q-12 5 -10 17" stroke="#ffd23f" stroke-width="6"/>
+      <path d="M28 66 q-9 5 -7 14" stroke="#7ec8ff" stroke-width="5"/>
+    </g>
+    <g stroke="${out}" stroke-width="4" stroke-linejoin="round">
+      <rect x="34" y="74" width="11" height="20" rx="5" fill="url(#${gid})"/>
+      <rect x="68" y="74" width="11" height="20" rx="5" fill="url(#${gid})"/>
+    </g>
+    <ellipse cx="54" cy="60" rx="36" ry="24" fill="url(#${gid})" stroke="${out}" stroke-width="5"/>
+    <path d="M74 50 q6 -22 18 -30 q14 4 16 18 q1 12 -8 20 z" fill="url(#${gid})" stroke="${out}" stroke-width="5" stroke-linejoin="round"/>
+    <circle cx="92" cy="34" r="17" fill="url(#${gid})" stroke="${out}" stroke-width="5"/>
+    <ellipse cx="103" cy="40" rx="9" ry="7.5" fill="${hi}" stroke="${out}" stroke-width="3"/>
+    <circle cx="105" cy="40" r="1.6" fill="${out}"/>
+    <path d="M80 20 l3 -11 8 8 z" fill="url(#${gid})" stroke="${out}" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M93 18 l5 -16 5 15 z" fill="#ffd23f" stroke="#c79a00" stroke-width="3" stroke-linejoin="round"/>
+    <g fill="none" stroke-linecap="round">
+      <path d="M82 18 q-14 8 -15 26 q-2 13 -11 18" stroke="#ff7bc0" stroke-width="7"/>
+      <path d="M88 20 q-11 9 -12 25" stroke="#ffd23f" stroke-width="6"/>
+      <path d="M93 24 q-9 9 -9 22" stroke="#7ec8ff" stroke-width="5"/>
+    </g>
+    <circle cx="90" cy="33" r="5.5" fill="#fff" stroke="${out}" stroke-width="2"/>
+    <circle cx="90.5" cy="34" r="3.4" fill="#2b2d5c"/>
+    <circle cx="92" cy="32.4" r="1.4" fill="#fff"/>
+    <path d="M84 26 l-4 -2 M87 24 l-2.6 -3.4" stroke="${out}" stroke-width="2" stroke-linecap="round"/>
+    <circle cx="96" cy="42" r="3.4" fill="#ff9ec4" opacity="0.8"/>
+    <path d="M30 44 q20 -8 40 -2 q-6 7 -40 5 z" fill="#fff" opacity="0.30"/>
   </svg>`;
 }
 
