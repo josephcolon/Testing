@@ -1098,3 +1098,11 @@ body {
   0% { opacity: 1; }
   100% { opacity: 0; transform: translate(calc(-50% + var(--flee, 1) * 120px), -260%) scale(0.5) rotate(calc(var(--flee, 1) * 30deg)); }
 }
+
+/* v16 — drive scenery polish: soft sun */
+.drive-scene .sun {
+  position: absolute; top: 11%; left: 13%; z-index: 0;
+  width: clamp(54px, 15vw, 120px); aspect-ratio: 1 / 1; border-radius: 50%;
+  background: radial-gradient(circle at 42% 40%, #fff7cc, #ffe066 58%, rgba(255,224,102,0) 72%);
+  filter: drop-shadow(0 0 18px rgba(255,224,102,0.5));
+}

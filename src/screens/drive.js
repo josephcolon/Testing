@@ -60,8 +60,15 @@ export function entityFor(slot) {
 }
 
 const uri = (svg) => `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
-const CLOUDS = `<svg xmlns='http://www.w3.org/2000/svg' width='600' height='200'><g fill='#ffffff' opacity='0.92'><ellipse cx='120' cy='70' rx='60' ry='34'/><ellipse cx='80' cy='90' rx='42' ry='26'/><ellipse cx='170' cy='92' rx='44' ry='26'/><ellipse cx='430' cy='50' rx='50' ry='28'/><ellipse cx='400' cy='66' rx='34' ry='22'/><ellipse cx='465' cy='66' rx='36' ry='22'/></g></svg>`;
-const hillsSvg = (color, w, h) => `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'><path d='M0 ${h} V${h * 0.62} Q${w * 0.25} ${h * 0.26} ${w * 0.5} ${h * 0.62} T${w} ${h * 0.62} V${h} Z' fill='${color}'/></svg>`;
+const dk = (hex, a) => { const n = parseInt(hex.slice(1), 16); return `rgb(${Math.round(((n >> 16) & 255) * a)},${Math.round(((n >> 8) & 255) * a)},${Math.round((n & 255) * a)})`; };
+const lt = (hex, a) => { const n = parseInt(hex.slice(1), 16); const L = (c) => Math.round(c + (255 - c) * a); return `rgb(${L((n >> 16) & 255)},${L((n >> 8) & 255)},${L(n & 255)})`; };
+const CLOUDS = `<svg xmlns='http://www.w3.org/2000/svg' width='600' height='200'><g fill='#ffffff' opacity='0.95'><ellipse cx='120' cy='70' rx='60' ry='34'/><ellipse cx='80' cy='90' rx='42' ry='26'/><ellipse cx='170' cy='92' rx='44' ry='26'/><ellipse cx='430' cy='50' rx='50' ry='28'/><ellipse cx='400' cy='66' rx='34' ry='22'/><ellipse cx='465' cy='66' rx='36' ry='22'/></g></svg>`;
+const hillsSvg = (color, w, h) => {
+  const hi = (color.startsWith('#') ? lt(color, 0.2) : color);
+  const def = color.startsWith('#') ? `<defs><linearGradient id='hg' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='${hi}'/><stop offset='1' stop-color='${color}'/></linearGradient></defs>` : '';
+  const fill = color.startsWith('#') ? 'url(#hg)' : color;
+  return `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'>${def}<path d='M0 ${h} V${h * 0.62} Q${w * 0.25} ${h * 0.26} ${w * 0.5} ${h * 0.62} T${w} ${h * 0.62} V${h} Z' fill='${fill}'/></svg>`;
+};
 
 export function renderDrive({ root, show, params }) {
   const profile = getProfile(params.profileId) || getProfiles()[0];
@@ -71,6 +78,7 @@ export function renderDrive({ root, show, params }) {
   root.innerHTML = `
     <div class="drive-scene">
       <div class="dlayer sky"></div>
+      <div class="sun"></div>
       <div class="dlayer clouds"></div>
       <div class="dlayer hills-far"></div>
       <div class="dlayer hills-near"></div>
