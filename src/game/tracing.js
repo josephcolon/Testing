@@ -1,32 +1,29 @@
 /* ==========================================================================
-   tracing.js — ABCmouse-style "trace the shape" mechanic.
+   tracing.js — "trace the shape" the friendly way.
 
-   Given a glyph (array of strokes of [x,y] in a 0..100 box), it lays the glyph
-   out centered in the board, drops faint guide dots along each stroke, and lets
-   the child drag a finger to light them up in order. Finishing a stroke is a
-   progress step; finishing all strokes solves it. No fail state — you just keep
-   tracing. Lenient hit radius for little fingers.
+   The glyph is shown as a big, fat, light TRACK (a thick ribbon in the shape of
+   the letter/number). The child drags a finger along it however they like and
+   the track FILLS with color as they go — they don't have to hit individual
+   points, they just have to follow the shape. Generous tolerance, forgiving of
+   fast swipes and wobbles. Finishing all strokes solves it. No fail state.
    ========================================================================== */
 
 const SVGNS = 'http://www.w3.org/2000/svg';
 
 function resample(points, spacing) {
-  // Walk the polyline and emit points roughly `spacing` apart (0..100 space).
   const out = [points[0]];
   let acc = 0;
   for (let i = 1; i < points.length; i++) {
     let [x0, y0] = out[out.length - 1];
     const [x1, y1] = points[i];
-    let segLen = Math.hypot(x1 - x0, y1 - y0);
-    while (segLen >= spacing - acc) {
-      const t = (spacing - acc) / segLen;
+    let seg = Math.hypot(x1 - x0, y1 - y0);
+    while (seg >= spacing - acc) {
+      const t = (spacing - acc) / seg;
       const nx = x0 + (x1 - x0) * t, ny = y0 + (y1 - y0) * t;
-      out.push([nx, ny]);
-      x0 = nx; y0 = ny;
-      segLen = Math.hypot(x1 - x0, y1 - y0);
-      acc = 0;
+      out.push([nx, ny]); x0 = nx; y0 = ny;
+      seg = Math.hypot(x1 - x0, y1 - y0); acc = 0;
     }
-    acc += segLen;
+    acc += seg;
   }
   const last = points[points.length - 1];
   if (Math.hypot(out[out.length - 1][0] - last[0], out[out.length - 1][1] - last[1]) > spacing * 0.4) out.push(last);
@@ -34,14 +31,15 @@ function resample(points, spacing) {
 }
 
 export function makeTrace(glyph, prompt) {
-  let surface, board, wp = [], sIdx = 0, wIdx = 0, drawing = false, hintEl = null;
+  let board, svg, strokes = [], sIdx = 0, prog = 0, drawing = false, frontEl, startEl, fills = [];
 
   function layout() {
     const w = board.clientWidth || (typeof window !== 'undefined' ? window.innerWidth : 800);
     const h = board.clientHeight || (typeof window !== 'undefined' ? window.innerHeight : 600);
-    const S = Math.min(w, h) * 0.78;
+    const S = Math.min(w, h) * 0.82;
     return { w, h, S, ox: (w - S) / 2, oy: (h - S) / 2 };
   }
+  const poly = (pts) => pts.map((p) => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
 
   return {
     prompt,
@@ -51,80 +49,71 @@ export function makeTrace(glyph, prompt) {
       b.innerHTML = '';
       const { S, ox, oy } = layout();
       const px = ([gx, gy]) => ({ x: ox + (gx / 100) * S, y: oy + (gy / 100) * S });
-      const R = Math.max(26, S * 0.14);
+      const TOL = Math.max(34, S * 0.17);
+      const tw = Math.max(20, S * 0.12);
 
-      surface = document.createElement('div');
-      surface.className = 'trace-surface';
-      surface.style.position = 'absolute';
-      surface.style.inset = '0';
-      surface.style.touchAction = 'none';
-      b.appendChild(surface);
-
-      // Guide outline (dotted) for looks.
-      const svg = document.createElementNS(SVGNS, 'svg');
+      svg = document.createElementNS(SVGNS, 'svg');
       svg.setAttribute('class', 'trace-svg');
-      surface.appendChild(svg);
+      const surface = document.createElement('div');
+      surface.className = 'trace-surface';
+      surface.style.position = 'absolute'; surface.style.inset = '0'; surface.style.touchAction = 'none';
+      b.appendChild(surface); surface.appendChild(svg);
 
-      wp = [];
-      glyph.forEach((stroke) => {
-        const sampled = resample(stroke, 9).map(px);
-        wp.push(sampled);
-        const poly = document.createElementNS(SVGNS, 'polyline');
-        poly.setAttribute('points', stroke.map((p) => { const q = px(p); return `${q.x},${q.y}`; }).join(' '));
-        poly.setAttribute('class', 'trace-guide');
-        svg.appendChild(poly);
-        const trail = document.createElementNS(SVGNS, 'polyline');
-        trail.setAttribute('class', 'trace-trail');
-        svg.appendChild(trail);
-        sampled._trail = trail;
-        sampled.forEach((q) => {
-          const dot = document.createElement('div');
-          dot.className = 'trace-dot';
-          dot.style.left = q.x + 'px'; dot.style.top = q.y + 'px';
-          surface.appendChild(dot);
-          q.dot = dot;
-        });
+      strokes = glyph.map((stroke) => resample(stroke, 5).map(px));
+      surface._waypoints = strokes; // (tests)
+      fills = [];
+      // tracks (visible fat glyph), then fills (colored progress) on top
+      strokes.forEach((pts) => {
+        const track = document.createElementNS(SVGNS, 'polyline');
+        track.setAttribute('class', 'trace-track'); track.setAttribute('points', poly(pts));
+        track.setAttribute('stroke-width', tw); svg.appendChild(track);
       });
-      surface._waypoints = wp; // (used by tests)
+      strokes.forEach((pts) => {
+        const fill = document.createElementNS(SVGNS, 'polyline');
+        fill.setAttribute('class', 'trace-fill'); fill.setAttribute('points', '');
+        fill.setAttribute('stroke-width', tw); svg.appendChild(fill); fills.push(fill);
+      });
+      startEl = document.createElementNS(SVGNS, 'circle'); startEl.setAttribute('class', 'trace-start'); startEl.setAttribute('r', tw * 0.62); svg.appendChild(startEl);
+      frontEl = document.createElementNS(SVGNS, 'circle'); frontEl.setAttribute('class', 'trace-front'); frontEl.setAttribute('r', tw * 0.5); svg.appendChild(frontEl);
 
-      sIdx = 0; wIdx = 0;
-      highlight();
+      sIdx = 0; prog = 0; updateActive();
 
-      const localPos = (e) => {
-        const r = surface.getBoundingClientRect();
-        return { x: (e.clientX ?? 0) - r.left, y: (e.clientY ?? 0) - r.top };
-      };
-      const tryReach = (pos) => {
-        if (sIdx >= wp.length) return;
-        const stroke = wp[sIdx];
-        // Reach the next dot, and any subsequent dots also under the finger.
-        while (wIdx < stroke.length && Math.hypot(pos.x - stroke[wIdx].x, pos.y - stroke[wIdx].y) <= R) {
-          stroke[wIdx].dot.classList.add('on');
-          const pts = stroke.slice(0, wIdx + 1).map((q) => `${q.x},${q.y}`).join(' ');
-          stroke._trail.setAttribute('points', pts);
-          wIdx += 1;
+      const localPos = (e) => { const r = surface.getBoundingClientRect(); return { x: (e.clientX ?? 0) - r.left, y: (e.clientY ?? 0) - r.top }; };
+      const advance = (pos) => {
+        if (sIdx >= strokes.length) return;
+        const pts = strokes[sIdx];
+        let far = prog;
+        for (let i = prog + 1; i < pts.length && i <= prog + 14; i++) {
+          if (Math.hypot(pts[i].x - pos.x, pts[i].y - pos.y) <= TOL) far = i;
         }
-        if (wIdx >= stroke.length) {
-          sIdx += 1; wIdx = 0;
-          if (sIdx >= wp.length) { clearHint(); api.solved(); }
-          else { api.progress(); highlight(); }
+        if (far > prog) {
+          prog = far;
+          fills[sIdx].setAttribute('points', poly(pts.slice(0, prog + 1)));
+          frontEl.setAttribute('cx', pts[prog].x); frontEl.setAttribute('cy', pts[prog].y);
+          if (prog >= pts.length - 1) completeStroke(api);
         }
       };
+      surface.addEventListener('pointerdown', (e) => { drawing = true; advance(localPos(e)); });
+      surface.addEventListener('pointermove', (e) => { if (drawing) advance(localPos(e)); });
+      const up = () => { drawing = false; };
+      surface.addEventListener('pointerup', up);
+      surface.addEventListener('pointerleave', up);
 
-      surface.addEventListener('pointerdown', (e) => { drawing = true; tryReach(localPos(e)); });
-      surface.addEventListener('pointermove', (e) => { if (drawing) tryReach(localPos(e)); });
-      const stop = () => { drawing = false; };
-      surface.addEventListener('pointerup', stop);
-      surface.addEventListener('pointerleave', stop);
-
-      function highlight() {
-        clearHint();
-        const stroke = wp[sIdx];
-        if (stroke && stroke[wIdx]) { hintEl = stroke[wIdx].dot; hintEl.classList.add('target'); }
+      function completeStroke(a) {
+        fills[sIdx].setAttribute('points', poly(strokes[sIdx]));
+        sIdx += 1; prog = 0;
+        if (sIdx >= strokes.length) {
+          startEl.style.display = 'none'; frontEl.style.display = 'none';
+          a.solved();
+        } else { a.progress(); updateActive(); }
       }
-      function clearHint() { if (hintEl) hintEl.classList.remove('target'); hintEl = null; }
-      this._highlight = highlight;
+      function updateActive() {
+        const p0 = strokes[sIdx][0];
+        startEl.setAttribute('cx', p0.x); startEl.setAttribute('cy', p0.y); startEl.style.display = '';
+        frontEl.setAttribute('cx', p0.x); frontEl.setAttribute('cy', p0.y); frontEl.style.display = '';
+      }
+      this._updateActive = updateActive;
     },
-    hintTarget() { return hintEl; },
+    hintTarget() { return null; },
   };
 }

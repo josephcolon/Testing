@@ -1082,3 +1082,19 @@ body {
 
 /* lift the UI above the day/night overlay */
 .drive-controls, .beep, .back-btn { z-index: 7; }
+
+/* ==========================================================================
+   v15 — friendlier tracing: fat track you fill, not dots to hit.
+   ========================================================================== */
+.trace-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.trace-track { fill: none; stroke: rgba(255,255,255,0.55); stroke-linecap: round; stroke-linejoin: round; }
+.trace-fill  { fill: none; stroke: var(--accent); stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.18)); }
+.trace-start { fill: #ffffff; stroke: var(--accent); stroke-width: 4; }
+.trace-front { fill: #fff; stroke: var(--accent); stroke-width: 5; animation: stoppulse 1s ease-in-out infinite; }
+
+/* honk clears the road — animals scurry away */
+.dentity.animal.flee { animation: flee 0.65s cubic-bezier(.3,.7,.4,1) forwards; }
+@keyframes flee {
+  0% { opacity: 1; }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--flee, 1) * 120px), -260%) scale(0.5) rotate(calc(var(--flee, 1) * 30deg)); }
+}
