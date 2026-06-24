@@ -120,17 +120,23 @@ function unicornSVG(hex) {
 }
 
 function shapeSVG(shape, hex) {
-  const dark = darken(hex);
-  const wrap = (inner) =>
+  const out = darken(hex, 0.55);
+  const lo = darken(hex, 0.9);
+  const hi = lighten(hex, 0.55);
+  const id = 'sg' + shape + hex.slice(1);
+  const wrap = (inner, gloss = '<ellipse cx="40" cy="32" rx="20" ry="11" fill="#fff" opacity="0.30"/>') =>
     `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">` +
-    `<g fill="${hex}" stroke="${dark}" stroke-width="5" stroke-linejoin="round">${inner}</g></svg>`;
+    `<defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${hi}"/><stop offset="0.6" stop-color="${hex}"/><stop offset="1" stop-color="${lo}"/></linearGradient>` +
+    `<clipPath id="c${id}">${inner}</clipPath></defs>` +
+    `<g fill="url(#${id})" stroke="${out}" stroke-width="6" stroke-linejoin="round">${inner}</g>` +
+    `<g clip-path="url(#c${id})">${gloss}</g></svg>`;
   switch (shape) {
     case 'circle':   return wrap('<circle cx="50" cy="50" r="40"/>');
-    case 'square':   return wrap('<rect x="14" y="14" width="72" height="72" rx="8"/>');
-    case 'triangle': return wrap('<path d="M50 12 L88 84 L12 84 Z"/>');
-    case 'star':     return wrap('<path d="M50 8 L61 38 L93 38 L67 58 L77 90 L50 70 L23 90 L33 58 L7 38 L39 38 Z"/>');
+    case 'square':   return wrap('<rect x="14" y="14" width="72" height="72" rx="10"/>');
+    case 'triangle': return wrap('<path d="M50 12 L88 84 L12 84 Z"/>', '<ellipse cx="46" cy="48" rx="16" ry="9" fill="#fff" opacity="0.28"/>');
+    case 'star':     return wrap('<path d="M50 8 L61 38 L93 38 L67 58 L77 90 L50 70 L23 90 L33 58 L7 38 L39 38 Z"/>', '<ellipse cx="44" cy="40" rx="14" ry="8" fill="#fff" opacity="0.28"/>');
     case 'heart':    return wrap('<path d="M50 86 C8 56 14 20 38 20 C48 20 50 30 50 30 C50 30 52 20 62 20 C86 20 92 56 50 86 Z"/>');
-    case 'diamond':  return wrap('<path d="M50 10 L88 50 L50 90 L12 50 Z"/>');
+    case 'diamond':  return wrap('<path d="M50 10 L88 50 L50 90 L12 50 Z"/>', '<ellipse cx="42" cy="42" rx="14" ry="9" fill="#fff" opacity="0.28"/>');
     case 'oval':     return wrap('<ellipse cx="50" cy="50" rx="42" ry="28"/>');
     default:         return wrap('<circle cx="50" cy="50" r="40"/>');
   }
