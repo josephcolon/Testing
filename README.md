@@ -49,6 +49,14 @@ immediate repeats), all sharing the scene, mascots, voice, and rewards:
 - **Trace Letters / Trace Numbers** — drag along the dotted glyph to form the
   shape (`src/game/tracing.js` + `glyphs.js`); the signature ABCmouse mechanic,
   building letter/number formation and fine-motor control. No fail state.
+- **Line Match** — draw a big line from each item to its match across two
+  columns (letter→picture, upper→lower, number→dots). Forgiving, big swipes —
+  ideal for the youngest.
+
+### Visual polish
+A polish pass pushes toward a chunky, glossy "sticker" look (RV-AppStudios
+style): rainbow sticker-outlined letters, glossy gradient cards with deep
+shadows, grounded mascots, and thick colorful connector lines.
 
 ### Game feel (juice)
 A small custom 2D physics integrator (gravity, buoyancy, drag, bouncy walls,

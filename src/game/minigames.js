@@ -43,6 +43,7 @@ import * as startingsound from '../activities/startingsound.js';
 import * as letterpop from '../activities/letterpop.js';
 import * as traceletters from '../activities/traceletters.js';
 import * as tracenumbers from '../activities/tracenumbers.js';
+import * as linematch from '../activities/linematch.js';
 
 export const GAMES = [
   findit, countgroup, countout, tapall, oddoneout, sizes, pattern, memory,
@@ -50,7 +51,7 @@ export const GAMES = [
   shadowmatch, connectdots, sameordifferent, feedme, echo, ispy,
   bubblepop, balloonpop, applecatch, ballpit,
   letterfind, numberfind, lettermatch, abcorder, startingsound, letterpop,
-  traceletters, tracenumbers,
+  traceletters, tracenumbers, linematch,
 ];
 
 // Remember the last few picks so the same game doesn't keep coming back —

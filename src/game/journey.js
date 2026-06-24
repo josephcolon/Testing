@@ -12,7 +12,7 @@ import { JOURNEY_STOPS } from '../state.js';
 
 // Games unlocked by the time you reach each tier (cumulative).
 const TIERS = [
-  ['pop', 'bubblepop', 'ballpit', 'findit', 'peekaboo', 'tickle', 'countgroup', 'letterfind', 'numberfind', 'traceletters'], // stops 1-3
+  ['pop', 'bubblepop', 'ballpit', 'findit', 'peekaboo', 'tickle', 'countgroup', 'letterfind', 'numberfind', 'traceletters', 'linematch'], // stops 1-3
   ['tapall', 'howmany', 'feedme', 'balloonpop', 'applecatch', 'sizes', 'letterpop', 'tracenumbers', 'lettermatch'],          // stops 4-6
   ['whichmore', 'memory', 'shadowmatch', 'sameordifferent', 'countout', 'oddoneout', 'startingsound', 'abcorder'],           // stops 7-9
   ['sorting', 'pattern', 'inorder', 'connectdots', 'ispy', 'echo'],                                                          // stops 10-12
