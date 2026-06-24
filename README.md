@@ -76,13 +76,15 @@ comparison), balanced against the open-ended, no-fail, surprise-and-delight
 philosophy of Toca Boca / Sago Mini.
 
 ## Play modes
-- **Free Drive** — an open, no-fail driving sandbox with a living world. The car
-  rides over **rolling hills** (a live terrain curve) and tilts to the slope,
-  drives into **coins/balloons** to collect them (which feed the Prize Machine,
-  with a coin HUD), and passes **animals and landmarks** that **react when you
-  honk**. Endless in both directions, no obstacles — a 3-year-old can never get
-  stuck. Two giant hold-to-drive arrows (◀ ▶), a honk button, and a garage (🔧)
-  to change car type (car/truck/bus/race/unicorn) and color — saved per child.
+- **Free Drive** — a deep, open, no-fail driving world. The car rides over
+  **rolling hills** (tilting to the slope) and travels through changing
+  **biomes** (grassland → desert → snow → city → beach), each with its own sky,
+  ground, hills, animals and landmarks. Drive into **coins/balloons** to collect
+  them (they feed the Prize Machine), hit a **ramp** to launch a **jump**, watch
+  a **day/night cycle** drift by, and **honk** to make the animals call back
+  ("Moo!", "Woof!"). A coin counter + **distance odometer** track the trip.
+  Endless in both directions, no obstacles. Two hold-to-drive arrows (◀ ▶), a
+  honk button, and a garage (🔧) to change car type + color — saved per child.
 - **Adventure Map** — a themed 12-stop journey per child. Each stop is a short
   level (3–5 rounds) drawn from a curated, growing pool of the mini-games. Clear
   a stop to earn 1–3 stars (by first-try accuracy) and unlock the next; the

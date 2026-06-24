@@ -1042,3 +1042,43 @@ body {
   background: rgba(255,255,255,0.95); border-radius: 999px; padding: 0.25em 0.9em;
   font-weight: 800; font-size: clamp(1.1rem, 4vmin, 1.8rem); color: var(--ink); box-shadow: var(--shadow);
 }
+
+/* ==========================================================================
+   v14 — Free Drive deepening: biomes, day/night, ramps, dual HUD.
+   ========================================================================== */
+.terrain .grass { fill: var(--grass, #6fb84a); }
+
+.daynight {
+  position: absolute; inset: 0; z-index: 4; pointer-events: none; opacity: 0;
+  background:
+    radial-gradient(2px 2px at 20% 18%, #fff, transparent),
+    radial-gradient(2px 2px at 38% 30%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 60% 14%, #fff, transparent),
+    radial-gradient(2px 2px at 75% 26%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 88% 16%, #fff, transparent),
+    linear-gradient(180deg, rgba(14,18,52,0.85), rgba(20,26,70,0.5));
+  transition: opacity 0.5s linear;
+}
+
+.dentity.ramp {
+  width: 0; height: 0;
+  border-style: solid;
+  border-width: 0 0 clamp(26px, 8vmin, 52px) clamp(34px, 10vmin, 66px);
+  border-color: transparent transparent #b07b48 transparent;
+  filter: drop-shadow(0 4px 3px rgba(0,0,0,0.2));
+}
+.dentity.ramp::after {
+  content: ''; position: absolute; left: 2px; bottom: 0;
+  width: 60%; height: 30%; background: rgba(255,255,255,0.25);
+}
+
+.hud {
+  position: absolute; top: var(--gap); z-index: 7;
+  background: rgba(255,255,255,0.95); border-radius: 999px; padding: 0.22em 0.8em;
+  font-weight: 800; font-size: clamp(1rem, 3.6vmin, 1.6rem); color: var(--ink); box-shadow: var(--shadow);
+}
+.coin-hud { left: 50%; transform: translateX(-60%); }
+.dist-hud { left: 50%; transform: translateX(46%); }
+
+/* lift the UI above the day/night overlay */
+.drive-controls, .beep, .back-btn { z-index: 7; }
