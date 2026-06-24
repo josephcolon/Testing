@@ -1093,7 +1093,7 @@ body {
 .trace-front { fill: #fff; stroke: var(--accent); stroke-width: 5; animation: stoppulse 1s ease-in-out infinite; }
 
 /* honk clears the road — animals scurry away */
-.dentity.animal.flee { animation: flee 0.65s cubic-bezier(.3,.7,.4,1) forwards; }
+.dentity.flee { animation: flee 0.65s cubic-bezier(.3,.7,.4,1) forwards; }
 @keyframes flee {
   0% { opacity: 1; }
   100% { opacity: 0; transform: translate(calc(-50% + var(--flee, 1) * 120px), -260%) scale(0.5) rotate(calc(var(--flee, 1) * 30deg)); }

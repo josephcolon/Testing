@@ -148,16 +148,17 @@ export function renderDrive({ root, show, params }) {
     const beep = root.querySelector('.beep');
     beep.classList.remove('show'); void beep.offsetWidth; beep.classList.add('show');
     carEl.classList.remove('hop'); void carEl.offsetWidth; carEl.classList.add('hop');
-    // Beep beep clears the road: nearby animals scurry away.
+    // Beep beep clears the road: everything in the way (animals AND obstacles
+    // like trees/houses/cactus) scurries off. Coins and ramps are left alone.
     const W = scene.clientWidth || (typeof window !== 'undefined' ? window.innerWidth : 800);
     let nearest = null, nd = 1e9;
     entities.forEach((e) => {
-      if (!e || e.collected || e.data.type !== 'animal') return;
+      if (!e || e.collected) return;
+      if (e.data.type === 'coin' || e.data.type === 'ramp') return;
       const sx = CAR_SX * W + (e.data.wx - state.worldX);
-      if (sx > -60 && sx < W + 140) {
+      if (sx > -90 && sx < W + 220) {
         const d = Math.abs(e.data.wx - state.worldX);
-        if (d < nd) { nd = d; nearest = e; }
-        // run off toward the far side
+        if (e.data.type === 'animal' && d < nd) { nd = d; nearest = e; }
         e.collected = true;
         e.el.style.setProperty('--flee', sx < CAR_SX * W ? '-1' : '1');
         e.el.classList.add('flee');
