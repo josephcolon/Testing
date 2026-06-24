@@ -15,6 +15,7 @@ import { renderStickers } from './screens/stickers.js';
 import { renderRecord } from './screens/record.js';
 import { renderMap } from './screens/map.js';
 import { renderPrizes } from './screens/prizes.js';
+import { renderDrive } from './screens/drive.js';
 import { refreshRecorded, requestPersistence } from './voice.js';
 
 const root = document.getElementById('app');
@@ -29,6 +30,7 @@ const screens = {
   record: renderRecord,
   map: renderMap,
   prizes: renderPrizes,
+  drive: renderDrive,
 };
 
 export const app = {

@@ -58,8 +58,10 @@ export function renderPick({ root, show, params }) {
 
   function start(ids) {
     const players = ids.map((id) => profiles.find((p) => p.id === id));
-    // Adventure goes to the world map first; other modes go straight to play.
+    // Adventure goes to the world map; Free Drive to the driving sandbox;
+    // other modes go straight to play.
     if (mode.kind === 'journey') show('map', { profileId: players[0].id });
+    else if (mode.kind === 'drive') show('drive', { profileId: players[0].id });
     else show('game', { mode, players });
   }
 

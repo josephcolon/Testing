@@ -33,7 +33,7 @@ function load() {
     const parsed = JSON.parse(raw);
     // Merge with defaults so missing keys never crash older saves.
     const profiles = (parsed.profiles?.length ? parsed.profiles : defaultState().profiles)
-      .map((p) => ({ stickers: [], coins: 0, prizes: {}, journey: { unlocked: 1, stars: {} }, ...p }));
+      .map((p) => ({ stickers: [], coins: 0, prizes: {}, car: { type: 'car', color: 0 }, journey: { unlocked: 1, stars: {} }, ...p }));
     return {
       profiles,
       settings: { soundOn: true, voiceOn: true, ...(parsed.settings || {}) },
@@ -91,6 +91,15 @@ export function spendCoins(profileId, n) {
   p.coins -= n;
   save();
   return true;
+}
+
+/** The child's saved vehicle (type + color index). */
+export function getCar(profile) { return profile.car || { type: 'car', color: 0 }; }
+export function setCar(profileId, car) {
+  const p = getProfile(profileId);
+  if (!p) return;
+  p.car = { ...getCar(p), ...car };
+  save();
 }
 
 /** Add one prize to the child's collection. */
