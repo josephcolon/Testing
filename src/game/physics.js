@@ -58,6 +58,9 @@ export function createWorld(container, opts = {}) {
     b.el.style.transform = `translate(${b.x - b.r}px, ${b.y - b.r}px) rotate(${b.angle}rad)`;
   }
 
+  const MAX_V = 1500;   // clamp linear speed so nothing rockets off
+  const MAX_VA = 5;     // clamp angular speed so nothing spins out of control
+
   function step(dt) {
     const { w, h } = bounds();
     for (const b of bodies) {
@@ -67,13 +70,20 @@ export function createWorld(container, opts = {}) {
       const d = b.drag ?? cfg.drag;
       b.vx *= Math.max(0, 1 - d * dt);
       b.vy *= Math.max(0, 1 - d * dt);
+      // Clamp speed.
+      const sp = Math.hypot(b.vx, b.vy);
+      if (sp > MAX_V) { b.vx *= MAX_V / sp; b.vy *= MAX_V / sp; }
       b.x += b.vx * dt;
       b.y += b.vy * dt;
+      // Spin only opts-in; always damp + clamp it so it can't run away.
+      b.va *= Math.max(0, 1 - 1.8 * dt);
+      if (b.va > MAX_VA) b.va = MAX_VA; else if (b.va < -MAX_VA) b.va = -MAX_VA;
       b.angle += b.va * dt;
 
       const e = b.restitution ?? cfg.restitution;
-      if (b.x - b.r < 0) { b.x = b.r; b.vx = Math.abs(b.vx) * e; b.va += 0.5; }
-      else if (b.x + b.r > w) { b.x = w - b.r; b.vx = -Math.abs(b.vx) * e; b.va -= 0.5; }
+      const spinKick = b.spin ? 0.4 : 0;
+      if (b.x - b.r < 0) { b.x = b.r; b.vx = Math.abs(b.vx) * e; b.va += spinKick; }
+      else if (b.x + b.r > w) { b.x = w - b.r; b.vx = -Math.abs(b.vx) * e; b.va -= spinKick; }
       if (b.y - b.r < 0) { b.y = b.r; b.vy = Math.abs(b.vy) * e; }
       else if (cfg.floor && b.y + b.r > h) {
         b.y = h - b.r; b.vy = -Math.abs(b.vy) * e; b.vx *= 0.96; b.va *= 0.9;
@@ -93,7 +103,8 @@ export function createWorld(container, opts = {}) {
             dx /= dist; dy /= dist;
             a.x -= dx * push; a.y -= dy * push;
             c.x += dx * push; c.y += dy * push;
-            a.vx -= dx * 30; c.vx += dx * 30;
+            // Gentle velocity nudge (was large enough to add runaway energy).
+            a.vx -= dx * 3; c.vx += dx * 3;
           }
         }
       }

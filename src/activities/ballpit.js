@@ -35,7 +35,7 @@ export function create(theme, count) {
         });
         const body = world.add(el, {
           r, x: rand(r, w - r), y: rand(r, h * 0.5),
-          vx: rand(-260, 260), vy: rand(-120, 120), va: rand(-4, 4),
+          vx: rand(-260, 260), vy: rand(-120, 120), va: rand(-4, 4), spin: true,
           restitution: 0.92, drag: 0.05,
         });
       }

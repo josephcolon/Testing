@@ -40,7 +40,7 @@ export function create(theme, count) {
   const lefts = pairs.map((p, i) => ({ ...p, color: LINE_COLORS[i % LINE_COLORS.length] }));
   const rights = shuffle(pairs.map((p) => ({ key: p.key, html: p.right })));
 
-  let board, svg, wrap, activeLeft = null, temp = null, matched = 0;
+  let board, svg, colR, activeLeft = null, temp = null, matched = 0, onMove = null, onUp = null;
 
   function center(el) {
     const r = el.getBoundingClientRect();
@@ -49,34 +49,63 @@ export function create(theme, count) {
   }
   function line(cls) { const l = document.createElementNS(SVGNS, 'line'); l.setAttribute('class', cls); svg.appendChild(l); return l; }
   function setLine(l, a, b) { l.setAttribute('x1', a.x); l.setAttribute('y1', a.y); l.setAttribute('x2', b.x); l.setAttribute('y2', b.y); }
-  function cancelTemp() { if (temp) { temp.remove(); temp = null; } activeLeft = null; }
 
-  function startDrag(p, el) {
-    if (el.classList.contains('done')) return;
-    cancelTemp();
-    activeLeft = { ...p, el, c: center(el) };
+  function endDrag() {
+    if (temp) { temp.remove(); temp = null; }
+    activeLeft = null;
+    if (onMove) window.removeEventListener('pointermove', onMove);
+    if (onUp) window.removeEventListener('pointerup', onUp);
+    onMove = onUp = null;
+  }
+
+  // Which right card is under the drop point (with a forgiving radius)?
+  function rightNodeAt(x, y) {
+    let best = null, bestD = Infinity;
+    colR.querySelectorAll('.lm-node[data-right-key]:not(.done)').forEach((n) => {
+      const r = n.getBoundingClientRect();
+      const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+      const d = Math.hypot(x - cx, y - cy);
+      const inside = x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+      const thresh = Math.max(r.width, r.height) * 0.7 || 50;
+      if ((inside || d < thresh) && d < bestD) { best = n; bestD = d; }
+    });
+    return best;
+  }
+
+  function startDrag(p, leftEl, api) {
+    if (leftEl.classList.contains('done')) return;
+    endDrag();
+    activeLeft = { ...p, el: leftEl, c: center(leftEl) };
     temp = line('lm-line temp');
     temp.style.stroke = p.color;
     setLine(temp, activeLeft.c, activeLeft.c);
-  }
-  function tryDrop(p, el, api) {
-    if (!activeLeft || el.classList.contains('done')) return;
-    const left = activeLeft; // capture before cancelTemp clears it
-    if (p.key === left.key) {
-      const committed = line('lm-line');
-      committed.style.stroke = left.color;
-      setLine(committed, left.c, center(el));
-      cancelTemp();
-      left.el.classList.add('done');
-      el.classList.add('done');
-      splatAt(el, 14, 'sm');
-      matched += 1;
-      if (matched >= lefts.length) api.solved();
-      else api.progress();
-    } else {
-      cancelTemp();
-      api.wrong(el, { dim: false });
-    }
+
+    onMove = (e) => {
+      if (!temp) return;
+      const s = svg.getBoundingClientRect();
+      setLine(temp, activeLeft.c, { x: (e.clientX ?? 0) - s.left, y: (e.clientY ?? 0) - s.top });
+    };
+    onUp = (e) => {
+      const left = activeLeft;
+      const target = rightNodeAt(e.clientX ?? 0, e.clientY ?? 0);
+      endDrag();
+      if (!left || !target) return;
+      if (target.dataset.rightKey === left.key) {
+        const committed = line('lm-line');
+        committed.style.stroke = left.color;
+        setLine(committed, left.c, center(target));
+        left.el.classList.add('done');
+        target.classList.add('done');
+        splatAt(target, 14, 'sm');
+        matched += 1;
+        if (matched >= lefts.length) api.solved();
+        else api.progress();
+      } else {
+        api.wrong(target, { dim: false });
+      }
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
   }
 
   return {
@@ -84,16 +113,13 @@ export function create(theme, count) {
     mount(b, api) {
       board = b;
       b.style.position = 'relative'; b.style.display = 'block'; b.style.overflow = 'hidden';
-      b.innerHTML = `<div class="lm-wrap">
-        <div class="lm-col left"></div>
-        <div class="lm-col right"></div>
-      </div>`;
-      wrap = b.querySelector('.lm-wrap');
+      b.innerHTML = `<div class="lm-wrap"><div class="lm-col left"></div><div class="lm-col right"></div></div>`;
+      const wrap = b.querySelector('.lm-wrap');
       svg = document.createElementNS(SVGNS, 'svg');
       svg.setAttribute('class', 'lm-lines');
       wrap.appendChild(svg);
       const colL = b.querySelector('.lm-col.left');
-      const colR = b.querySelector('.lm-col.right');
+      colR = b.querySelector('.lm-col.right');
 
       lefts.forEach((p) => {
         const el = document.createElement('button');
@@ -101,7 +127,7 @@ export function create(theme, count) {
         el.style.setProperty('--ln', p.color);
         el.dataset.leftKey = p.key;
         el.innerHTML = p.left;
-        el.addEventListener('pointerdown', () => startDrag(p, el));
+        el.addEventListener('pointerdown', (e) => { e.preventDefault?.(); startDrag(p, el, api); });
         colL.appendChild(el);
       });
       rights.forEach((p) => {
@@ -109,19 +135,10 @@ export function create(theme, count) {
         el.className = 'choice lm-node';
         el.dataset.rightKey = p.key;
         el.innerHTML = p.html;
-        el.addEventListener('pointerup', () => tryDrop(p, el, api));
         colR.appendChild(el);
       });
-
-      b.addEventListener('pointermove', (e) => {
-        if (!activeLeft || !temp) return;
-        const s = svg.getBoundingClientRect();
-        setLine(temp, activeLeft.c, { x: (e.clientX ?? 0) - s.left, y: (e.clientY ?? 0) - s.top });
-      });
-      // If the finger lifts somewhere that isn't a right node, drop the temp line.
-      b.addEventListener('pointerup', () => setTimeout(cancelTemp, 0));
     },
-    teardown() {},
+    teardown() { endDrag(); },
     hintTarget() { return board && board.querySelector('.lm-node[data-left-key]:not(.done)'); },
   };
 }
