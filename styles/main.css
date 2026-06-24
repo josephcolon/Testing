@@ -890,3 +890,38 @@ body {
 .lm-line.temp { opacity: 0.65; stroke-dasharray: 2 18; }
 .lm-node[data-left-key] .glyph-letter { color: var(--ln); }
 .dots-pic { font-size: clamp(0.9rem, 4vmin, 1.7rem); color: #6c7be0; letter-spacing: 1px; line-height: 1; max-width: 4.2em; display: inline-block; word-break: break-all; }
+
+/* ==========================================================================
+   v10 — Prize Machine (coin economy + collection).
+   ========================================================================== */
+.kid-chips { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.kid-chip {
+  font-family: inherit; font-weight: 800; border: 3px solid transparent;
+  background: rgba(255,255,255,0.92); border-radius: 999px; cursor: pointer;
+  padding: 0.4em 1em; font-size: clamp(0.95rem, 2.8vmin, 1.3rem); box-shadow: var(--shadow);
+}
+.kid-chip.on { background: var(--accent); border-color: rgba(0,0,0,0.15); }
+.machine {
+  background: linear-gradient(180deg, #ffffff, #eef1fb); border: 5px solid #fff;
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: clamp(14px, 3vmin, 28px); display: flex; flex-direction: column; align-items: center;
+  gap: clamp(8px, 1.6vmin, 16px); width: min(560px, 94vw);
+}
+.coin-balance { font-size: clamp(1.4rem, 5vmin, 2.4rem); font-weight: 800; color: var(--ink); }
+.machine-body { font-size: clamp(3.4rem, 18vmin, 8rem); line-height: 1; filter: drop-shadow(0 8px 8px rgba(0,0,0,0.2)); animation: bob 3s ease-in-out infinite; }
+.open-prize:disabled { opacity: 0.5; }
+.machine-hint { font-weight: 700; color: #777; min-height: 1.2em; font-size: clamp(0.9rem, 2.6vmin, 1.1rem); }
+.prize-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(clamp(48px, 12vmin, 80px), 1fr));
+  gap: 10px; width: min(640px, 94vw); padding-bottom: 12vh;
+}
+.prize-cell {
+  position: relative; aspect-ratio: 1 / 1; display: grid; place-items: center;
+  font-size: clamp(1.6rem, 7vmin, 3rem); border-radius: 16px;
+  background: rgba(255,255,255,0.9); box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+}
+.prize-cell.locked { opacity: 0.45; filter: grayscale(1); }
+.prize-cell .cnt {
+  position: absolute; right: 4%; bottom: 4%; background: var(--accent); color: var(--ink);
+  font-size: 0.42em; font-weight: 800; border-radius: 999px; padding: 0 0.4em; box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+}

@@ -85,6 +85,12 @@ philosophy of Toca Boca / Sago Mini.
 - **2 Players · Take Turns** — each child plays at their own difficulty
 - **2 Players · Side by Side** — split screen, simultaneous, multi-touch
 
+## Prize Machine (the reward economy)
+Every correct answer earns a **coin**, and finishing a world-map stop pays a
+bonus. Tap **🎁** on the home screen to open the **Prize Machine**: spend coins to
+open surprise prizes and fill a **collection** (per child). It's the meta goal
+that makes the rounds add up — a reason to keep playing, plus a reveal moment.
+
 ## For grown-ups
 Tap the ⚙️ gear (a quick math gate keeps little fingers out) to set, **per child**:
 - **Name** and **theme** (trucks/unicorns)

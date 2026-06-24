@@ -16,7 +16,7 @@
    ========================================================================== */
 
 import { THEMES, applyThemePalette } from '../themes.js';
-import { choiceCountFor, addSticker } from '../state.js';
+import { choiceCountFor, addSticker, addCoins } from '../state.js';
 import { themeSounds } from '../audio.js';
 import { speakTokens, PRAISE_TOKENS } from '../voice.js';
 import { mascotSVG } from '../mascots.js';
@@ -229,6 +229,7 @@ export class GameEngine {
 
     const id = this.activeProfile.id;
     this.scores[id] += 1;
+    addCoins(id, 1); // every correct answer earns a coin for the Prize Machine
     if (this.level) {
       this.roundsDone += 1;
       if (this.firstTry) this.levelFirstTry += 1;
@@ -254,6 +255,7 @@ export class GameEngine {
     const ft = this.levelFirstTry;
     const stars = ft >= r ? 3 : ft >= Math.ceil(r / 2) ? 2 : 1;
     addSticker(this.activeProfile.id, randomFrom(theme.stickerSet));
+    addCoins(this.activeProfile.id, stars * 5); // bonus coins for finishing a stop
     this.sfx.win();
     burst({ x: 0.5, y: 0.4, count: 200 });
     this.say(['reward'], 'You earned a sticker!', true);

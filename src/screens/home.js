@@ -24,6 +24,8 @@ export function renderHome({ root, show }) {
     <div class="screen">
       <button class="iconbtn" id="book" title="Sticker book"
         style="position:absolute;top:var(--gap);left:var(--gap)">📖</button>
+      <button class="iconbtn" id="prizes" title="Prize Machine"
+        style="position:absolute;top:var(--gap);left:calc(var(--gap)*2 + clamp(44px,8vmin,64px))">🎁</button>
       <button class="iconbtn" id="gear" title="Grown-ups"
         style="position:absolute;top:var(--gap);right:var(--gap)">⚙️</button>
       <div class="greeters">
@@ -57,6 +59,7 @@ export function renderHome({ root, show }) {
   });
 
   root.querySelector('#book').addEventListener('pointerdown', () => show('stickers'));
+  root.querySelector('#prizes').addEventListener('pointerdown', () => show('prizes', {}));
   root.querySelector('#gear').addEventListener('click', () => show('gate', { then: 'settings' }));
 
   speak("Let's play!");

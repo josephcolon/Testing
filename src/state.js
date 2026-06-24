@@ -17,8 +17,8 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 function defaultState() {
   return {
     profiles: [
-      { id: uid(), name: 'Buddy', theme: 'trucks', difficulty: 1, stickers: [], journey: { unlocked: 1, stars: {} } },
-      { id: uid(), name: 'Star', theme: 'unicorns', difficulty: 3, stickers: [], journey: { unlocked: 1, stars: {} } },
+      { id: uid(), name: 'Buddy', theme: 'trucks', difficulty: 1, stickers: [], coins: 0, prizes: {}, journey: { unlocked: 1, stars: {} } },
+      { id: uid(), name: 'Star', theme: 'unicorns', difficulty: 3, stickers: [], coins: 0, prizes: {}, journey: { unlocked: 1, stars: {} } },
     ],
     settings: { soundOn: true, voiceOn: true },
   };
@@ -33,7 +33,7 @@ function load() {
     const parsed = JSON.parse(raw);
     // Merge with defaults so missing keys never crash older saves.
     const profiles = (parsed.profiles?.length ? parsed.profiles : defaultState().profiles)
-      .map((p) => ({ stickers: [], journey: { unlocked: 1, stars: {} }, ...p }));
+      .map((p) => ({ stickers: [], coins: 0, prizes: {}, journey: { unlocked: 1, stars: {} }, ...p }));
     return {
       profiles,
       settings: { soundOn: true, voiceOn: true, ...(parsed.settings || {}) },
@@ -67,10 +67,39 @@ export function updateProfile(id, patch) {
 }
 
 export function addProfile() {
-  const p = { id: uid(), name: 'New', theme: 'trucks', difficulty: 1, stickers: [], journey: { unlocked: 1, stars: {} } };
+  const p = { id: uid(), name: 'New', theme: 'trucks', difficulty: 1, stickers: [], coins: 0, prizes: {}, journey: { unlocked: 1, stars: {} } };
   state.profiles.push(p);
   save();
   return p;
+}
+
+/* ---- Coins + prize collection (per child) ---- */
+export function getCoins(profile) { return profile.coins || 0; }
+
+export function addCoins(profileId, n) {
+  const p = getProfile(profileId);
+  if (!p) return 0;
+  p.coins = (p.coins || 0) + n;
+  save();
+  return p.coins;
+}
+
+/** Spend coins; returns true if affordable. */
+export function spendCoins(profileId, n) {
+  const p = getProfile(profileId);
+  if (!p || (p.coins || 0) < n) return false;
+  p.coins -= n;
+  save();
+  return true;
+}
+
+/** Add one prize to the child's collection. */
+export function addPrize(profileId, key) {
+  const p = getProfile(profileId);
+  if (!p) return;
+  p.prizes = p.prizes || {};
+  p.prizes[key] = (p.prizes[key] || 0) + 1;
+  save();
 }
 
 /* ---- World map / journey progress (per child) ---- */
