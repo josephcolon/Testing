@@ -41,13 +41,18 @@ export function distinctInts(min, max, n) {
 
 /* ---- Shared board helpers (used by every mini-game) ---- */
 
-/** Lay out a board element as a tidy grid for `n` cards (fits any panel). */
+/** Lay out a board as centered, squarish cards (not full-height columns). */
 export function layoutGrid(board, n) {
   const cols = n === 4 ? 2 : n <= 3 ? n : n <= 6 ? 3 : 4;
   const rows = Math.ceil(n / cols);
+  board.classList.add('grid-cards');
   board.style.display = 'grid';
-  board.style.gridTemplateColumns = `repeat(${cols}, minmax(0, 1fr))`;
-  board.style.gridTemplateRows = `repeat(${rows}, minmax(0, 1fr))`;
+  board.style.placeContent = 'center';
+  board.style.gap = 'var(--gap)';
+  board.style.gridTemplateColumns = `repeat(${cols}, minmax(0, var(--card)))`;
+  board.style.gridAutoRows = 'min-content';
+  board.style.setProperty('--cols', cols);
+  board.style.setProperty('--rows', rows);
 }
 
 /** Make a standard tappable choice card. Fires on pointerdown (toddler-safe). */
