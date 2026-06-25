@@ -27,6 +27,7 @@ import { screenShake, squish } from './juice.js';
 
 const REWARD_EVERY = 5; // stickers between celebration screens
 const HINT_AFTER_MS = 7000; // gently wiggle the answer if a child is stuck
+const ENTER_PAUSE_MS = 650; // input lock when a new round appears (anti-mistap)
 const randomFrom = (a) => a[Math.floor(Math.random() * a.length)];
 
 export class GameEngine {
@@ -44,6 +45,9 @@ export class GameEngine {
     this.locked = false;
     this.firstTry = true;
     this.hintTimer = null;
+    this.lockTimer = null;
+    this.gameModule = null;     // current mini-game; reused for a few rounds
+    this.gameRoundsLeft = 0;    // rounds remaining before switching games
     this.announceTurn = turnBased;
     this.build();
     this.nextRound();
@@ -138,8 +142,9 @@ export class GameEngine {
 
   nextRound() {
     clearTimeout(this.hintTimer);
+    clearTimeout(this.lockTimer);
     this.game?.teardown?.(); // stop any physics loop from the previous round
-    this.locked = false;
+    this.locked = true;      // stay locked through the short entry pause
     this.firstTry = true;
     this.applyTheme();
     this.renderScore();
@@ -147,8 +152,14 @@ export class GameEngine {
 
     const theme = this.activeTheme;
     const count = choiceCountFor(this.activeProfile);
-    const game = pickGame(this.activeProfile.difficulty || 1, this.level?.gamePool);
-    this.game = game.create(theme, count);
+    // Stay on the same mini-game for 2-3 rounds before switching — kids found
+    // a different game every single round too jarring.
+    if (this.gameRoundsLeft <= 0 || !this.gameModule) {
+      this.gameModule = pickGame(this.activeProfile.difficulty || 1, this.level?.gamePool);
+      this.gameRoundsLeft = 2 + Math.floor(Math.random() * 2); // 2 or 3
+    }
+    this.gameRoundsLeft -= 1;
+    this.game = this.gameModule.create(theme, count);
 
     const p = this.game.prompt;
     this.elPrompt.innerHTML = (p.icon || '') + `<span>${p.text}</span>`;
@@ -173,7 +184,16 @@ export class GameEngine {
       solved: (el) => this.onSolved(el),
     });
 
-    this.armHint();
+    // Brief pause: the new round fades in and ignores taps for a moment, so a
+    // finger still moving from the last round can't accidentally trigger it.
+    this.elChoices.classList.add('entering');
+    this.elChoices.style.pointerEvents = 'none';
+    this.lockTimer = setTimeout(() => {
+      this.locked = false;
+      this.elChoices.style.pointerEvents = '';
+      this.elChoices.classList.remove('entering');
+      this.armHint();
+    }, ENTER_PAUSE_MS);
   }
 
   armHint() {
@@ -303,6 +323,7 @@ export class GameEngine {
 
   destroy() {
     clearTimeout(this.hintTimer);
+    clearTimeout(this.lockTimer);
     this.game?.teardown?.();
     this.root.innerHTML = '';
     this.root.className = '';
