@@ -7,6 +7,7 @@
 import { getProfiles } from '../state.js';
 import { THEMES } from '../themes.js';
 import { speak, themeSounds } from '../audio.js';
+import { line } from '../content/lines.js';
 
 export function renderStickers({ root, show }) {
   const profiles = getProfiles();
@@ -32,7 +33,7 @@ export function renderStickers({ root, show }) {
     });
   });
 
-  speak('Look at all your stickers!');
+  speak(line('ui_stickers'));
 }
 
 function rowHTML(p) {

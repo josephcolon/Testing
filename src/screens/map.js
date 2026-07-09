@@ -13,6 +13,7 @@ import { THEMES } from '../themes.js';
 import { mascotSVG, mascotName } from '../mascots.js';
 import { sceneHTML } from '../ui/scene.js';
 import { speak } from '../audio.js';
+import { line } from '../content/lines.js';
 
 const OFFSETS = [-24, 0, 24, 0]; // serpentine x-offset (vw) by stop index
 
@@ -60,7 +61,7 @@ export function renderMap({ root, show, params }) {
   const focusEl = root.querySelector(`.map-stop[data-n="${focusN}"]`) || root.querySelector('.map-stop.current');
   if (focusEl && focusEl.scrollIntoView) focusEl.scrollIntoView({ block: 'center' });
 
-  speak(params.justFinished ? 'Great job! On to the next stop!' : `Let's go, ${mascotName(theme.id)}!`);
+  speak(params.justFinished ? line('ui_next_stop') : line(theme.id === 'unicorns' ? 'map_go_stella' : 'map_go_rumble'));
 }
 
 function stopHTML(stop, journey, unlocked, current, theme) {

@@ -8,6 +8,7 @@
 import { getProfiles } from '../state.js';
 import { THEMES } from '../themes.js';
 import { speak } from '../audio.js';
+import { line } from '../content/lines.js';
 
 export function renderPick({ root, show, params }) {
   const { mode } = params;
@@ -67,5 +68,5 @@ export function renderPick({ root, show, params }) {
 
   root.querySelector('#back').addEventListener('click', () => show('home'));
   draw();
-  speak(need === 1 ? 'Who is playing?' : 'Pick two players!');
+  speak(line(need === 1 ? 'ui_who_is_playing' : 'ui_pick_two'));
 }

@@ -6,6 +6,7 @@
 
 import { COLORS } from '../themes.js';
 import { sample, shuffle, layoutGrid, choiceButton } from '../game/round.js';
+import { line } from '../content/lines.js';
 
 export const id = 'pattern';
 export const minDifficulty = 2; // patterns are a step up — skip for the youngest
@@ -18,7 +19,7 @@ export function create(theme, count) {
   for (let i = 0; i < alpha.length * reps; i++) seq.push(alpha[i % alpha.length]);
   const answer = alpha[seq.length % alpha.length];
 
-  const prompt = { text: 'What comes next?', speechTokens: ['next'], icon: '➡️' };
+  const prompt = { text: line('next'), speechTokens: ['next'], icon: '➡️' };
   let board;
   return {
     prompt,

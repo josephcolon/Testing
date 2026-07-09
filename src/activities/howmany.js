@@ -7,6 +7,7 @@
 
 import { distinctInts, randInt } from '../game/round.js';
 import { makeSingle } from '../game/single.js';
+import { line } from '../content/lines.js';
 
 export const id = 'howmany';
 
@@ -24,7 +25,7 @@ export function create(theme, count) {
     }));
 
   // Reuse the single-correct helper, but show the set above the choices.
-  const single = makeSingle({ text: 'How many?', speechTokens: ['how_many'], icon: '🔢' }, items);
+  const single = makeSingle({ text: line('how_many'), speechTokens: ['how_many'], icon: '🔢' }, items);
   const baseMount = single.mount;
   single.mount = (b, api) => {
     b.style.display = 'flex';

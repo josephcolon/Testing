@@ -9,6 +9,7 @@
 
 import { speak } from '../audio.js';
 import { mascotSVG, mascotName } from '../mascots.js';
+import { line } from '../content/lines.js';
 import { sceneHTML } from '../ui/scene.js';
 
 const MODES = [
@@ -56,12 +57,12 @@ export function renderHome({ root, show }) {
 
   // Tapping a mascot makes it say hi.
   root.querySelectorAll('.greeters .mascot').forEach((el) => {
-    el.addEventListener('pointerdown', () => speak(`Hi! I'm ${mascotName(el.dataset.theme)}!`));
+    el.addEventListener('pointerdown', () => speak(line(el.dataset.theme === 'unicorns' ? 'greet_stella' : 'greet_rumble')));
   });
 
   root.querySelector('#book').addEventListener('pointerdown', () => show('stickers'));
   root.querySelector('#prizes').addEventListener('pointerdown', () => show('prizes', {}));
   root.querySelector('#gear').addEventListener('click', () => show('gate', { then: 'settings' }));
 
-  speak("Let's play!");
+  speak(line('ui_lets_play'));
 }

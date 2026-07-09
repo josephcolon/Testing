@@ -6,6 +6,7 @@
 
 import { COLORS } from '../themes.js';
 import { sample } from '../game/round.js';
+import { line } from '../content/lines.js';
 
 export const id = 'sameordifferent';
 
@@ -16,7 +17,7 @@ export function create(theme, count) {
   const right = theme.hero(same ? a.hex : b.hex);
   let board;
   return {
-    prompt: { text: 'Are they the same?', speechTokens: ['same_diff'], icon: '⚖️' },
+    prompt: { text: line('same_diff'), speechTokens: ['same_diff'], icon: '⚖️' },
     mount(boardEl, api) {
       board = boardEl;
       boardEl.style.display = 'flex';

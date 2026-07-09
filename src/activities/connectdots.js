@@ -5,6 +5,7 @@
    ========================================================================== */
 
 import { shuffle, layoutGrid, choiceButton } from '../game/round.js';
+import { line } from '../content/lines.js';
 
 export const id = 'connectdots';
 export const minDifficulty = 2;
@@ -14,7 +15,7 @@ export function create(theme, count) {
   const nums = shuffle(Array.from({ length: n }, (_, i) => i + 1));
   let board, expected = 1;
   return {
-    prompt: { text: 'Tap the numbers in order!', speechTokens: ['connect'], icon: '🔢' },
+    prompt: { text: line('connect'), speechTokens: ['connect'], icon: '🔢' },
     mount(b, api) {
       board = b;
       expected = 1;

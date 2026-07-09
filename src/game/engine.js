@@ -24,6 +24,7 @@ import { sceneHTML } from '../ui/scene.js';
 import { burst } from '../ui/confetti.js';
 import { pickGame } from './minigames.js';
 import { screenShake, squish } from './juice.js';
+import { line } from '../content/lines.js';
 
 const REWARD_EVERY = 5; // stickers between celebration screens
 const HINT_AFTER_MS = 7000; // gently wiggle the answer if a child is stuck
@@ -165,7 +166,7 @@ export class GameEngine {
     this.elPrompt.innerHTML = (p.icon || '') + `<span>${p.text}</span>`;
 
     if (this.announceTurn) {
-      this.say(null, `${this.activeProfile.name}, your turn!`, false);
+      this.say(null, `${this.activeProfile.name}, ${line('your_turn')}`, false);
       this.announceTurn = false;
     }
     this.say(p.speechTokens, p.text, false);
@@ -225,7 +226,7 @@ export class GameEngine {
     this.setMascot('oops', 'shake');
     screenShake('sm');
     const p = this.game.prompt;
-    this.say(['try_again', ...p.speechTokens], `Try again! ${p.text}`, true);
+    this.say(['try_again', ...p.speechTokens], `${line('try_again')} ${p.text}`, true);
     this.armHint();
   }
 
@@ -238,7 +239,7 @@ export class GameEngine {
     if (this.firstTry) this.sfx.bonus();
     this.setMascot('happy', 'bounce');
     screenShake(this.firstTry ? 'lg' : 'sm');
-    this.say([randomFrom(PRAISE_TOKENS)], randomFrom(this.activeTheme.praise), true);
+    this.say([randomFrom(PRAISE_TOKENS)], line(randomFrom(this.activeTheme.praise)), true);
 
     const rect = el ? el.getBoundingClientRect() : null;
     burst({
@@ -278,7 +279,7 @@ export class GameEngine {
     addCoins(this.activeProfile.id, stars * 5); // bonus coins for finishing a stop
     this.sfx.win();
     burst({ x: 0.5, y: 0.4, count: 200 });
-    this.say(['reward'], 'You earned a sticker!', true);
+    this.say(['reward'], line('reward'), true);
 
     const overlay = document.createElement('div');
     overlay.className = 'reward level-done';
@@ -310,7 +311,7 @@ export class GameEngine {
     this.sfx.win();
     this.setMascot('happy', 'bounce');
     burst({ x: 0.5, y: 0.4, count: 160 });
-    this.say(['reward'], 'You earned a sticker!', true);
+    this.say(['reward'], line('reward'), true);
     const overlay = document.createElement('div');
     overlay.className = 'reward';
     overlay.innerHTML = `

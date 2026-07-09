@@ -8,6 +8,7 @@ import { COLORS } from '../themes.js';
 import { sample } from '../game/round.js';
 import { createWorld, makeBody, rand } from '../game/physics.js';
 import { splatAt } from '../game/juice.js';
+import { line } from '../content/lines.js';
 
 export const id = 'ballpit';
 
@@ -15,7 +16,7 @@ export function create(theme, count) {
   const n = Math.min(9, count + 3);
   let world, popped = 0, board;
   return {
-    prompt: { text: 'Pop all the balls!', speechTokens: ['pop'], icon: '⚽' },
+    prompt: { text: line('prompt_pop_balls'), speechTokens: ['pop'], icon: '⚽' },
     mount(b, api) {
       board = b;
       b.style.position = 'relative'; b.style.display = 'block'; b.style.overflow = 'hidden';

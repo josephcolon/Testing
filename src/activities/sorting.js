@@ -7,6 +7,7 @@
 
 import { COLORS } from '../themes.js';
 import { sample, shuffle, randInt } from '../game/round.js';
+import { line } from '../content/lines.js';
 
 export const id = 'sorting';
 export const minDifficulty = 2;
@@ -19,7 +20,7 @@ export function create(theme, count) {
 
   let board, idx = 0, itemEl;
   return {
-    prompt: { text: 'Put each one in the matching basket!', speechTokens: ['sorting'], icon: '🧺' },
+    prompt: { text: line('sorting'), speechTokens: ['sorting'], icon: '🧺' },
     mount(b, api) {
       board = b;
       idx = 0;

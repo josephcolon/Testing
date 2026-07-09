@@ -6,6 +6,7 @@
 import { COLORS } from '../themes.js';
 import { shuffle, sample, randInt } from '../game/round.js';
 import { makeSingle } from '../game/single.js';
+import { line } from '../content/lines.js';
 
 export const id = 'sizes';
 
@@ -25,7 +26,7 @@ export function create(theme, count) {
   );
   return makeSingle(
     {
-      text: biggest ? 'Tap the biggest one!' : 'Tap the smallest one!',
+      text: biggest ? line('biggest') : line('smallest'),
       speechTokens: [biggest ? 'biggest' : 'smallest'],
       icon: biggest ? '⬆️' : '⬇️',
     },

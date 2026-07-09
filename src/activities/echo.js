@@ -8,6 +8,7 @@
 
 import { COLORS } from '../themes.js';
 import { sample, randInt, layoutGrid } from '../game/round.js';
+import { line } from '../content/lines.js';
 
 export const id = 'echo';
 export const minDifficulty = 3;
@@ -27,7 +28,7 @@ export function create(theme, count) {
   }
 
   return {
-    prompt: { text: 'Watch, then copy!', speechTokens: ['echo'], icon: '🎵' },
+    prompt: { text: line('echo'), speechTokens: ['echo'], icon: '🎵' },
     mount(b, api) {
       board = b;
       expected = 0;

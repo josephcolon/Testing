@@ -7,6 +7,7 @@
 
 import { COLORS } from '../themes.js';
 import { sample, shuffle, layoutGrid, choiceButton } from '../game/round.js';
+import { line } from '../content/lines.js';
 
 export const id = 'inorder';
 export const minDifficulty = 2;
@@ -22,7 +23,7 @@ export function create(theme, count) {
   const cards = sizes.map((s, rank) => ({ rank, size: s }));
 
   return {
-    prompt: { text: 'Tap them, smallest first!', speechTokens: ['in_order'], icon: '📏' },
+    prompt: { text: line('prompt_smallest_first'), speechTokens: ['in_order'], icon: '📏' },
     mount(b, api) {
       board = b;
       expected = 0;

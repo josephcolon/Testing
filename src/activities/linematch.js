@@ -9,6 +9,7 @@ import { LETTERS, PHONICS, PHONICS_LETTERS } from '../game/letters.js';
 import { COLORS } from '../themes.js';
 import { sample, shuffle, randInt } from '../game/round.js';
 import { splatAt } from '../game/juice.js';
+import { line as vo } from '../content/lines.js';
 
 export const id = 'linematch';
 
@@ -109,7 +110,7 @@ export function create(theme, count) {
   }
 
   return {
-    prompt: { text: 'Match them up!', speechTokens: ['match'], icon: '🔗' },
+    prompt: { text: vo('prompt_match_up'), speechTokens: ['match'], icon: '🔗' },
     mount(b, api) {
       board = b;
       b.style.position = 'relative'; b.style.display = 'block'; b.style.overflow = 'hidden';

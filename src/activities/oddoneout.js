@@ -6,6 +6,7 @@
 import { COLORS, SHAPES, EASY_SHAPES, shapeSVG } from '../themes.js';
 import { sample, shuffle, randInt } from '../game/round.js';
 import { makeSingle } from '../game/single.js';
+import { line } from '../content/lines.js';
 
 export const id = 'oddoneout';
 
@@ -14,7 +15,7 @@ export function create(theme, count) {
   const byColor = Math.random() < 0.5;
   const items = byColor ? colorOdd(theme, n) : shapeOdd(theme, n, count);
   return makeSingle(
-    { text: 'Which one is different?', speechTokens: ['different'], icon: '🔎' },
+    { text: line('different'), speechTokens: ['different'], icon: '🔎' },
     items
   );
 }

@@ -13,6 +13,7 @@ import { getProfile, getProfiles, getCar, setCar, addCoins } from '../state.js';
 import { vehicle, VEHICLES, CAR_COLORS, wheelSVG } from '../game/vehicles.js';
 import { themeSounds, speak } from '../audio.js';
 import { burst } from '../ui/confetti.js';
+import { line } from '../content/lines.js';
 
 export const DRIVE = { CRUISE: 360, ACCEL: 7, WHEEL_K: 0.6 };
 const SP = 230, CAR_SX = 0.34, ZONE = 4200, JUMP_DUR = 0.8;
@@ -46,7 +47,7 @@ export const BIOMES = [
 ];
 export const biomeAt = (wx) => BIOMES[Math.floor(Math.abs(wx) / ZONE) % BIOMES.length];
 
-const SOUND = { '🐮': 'Moo!', '🐑': 'Baa!', '🐶': 'Woof!', '🐕': 'Woof!', '🐱': 'Meow!', '🐈': 'Meow!', '🐸': 'Ribbit!', '🐦': 'Tweet!', '🦆': 'Quack!', '🐫': 'Grunt!', '🐧': 'Squawk!', '🦌': 'Snort!', '🐰': 'Boing!', '🦀': 'Snip!', '🐙': 'Bloop!', '🐠': 'Blub!', '🐢': 'Hello!', '🦎': 'Hiss!', '🐍': 'Hiss!', '🐀': 'Squeak!', '🐻‍❄️': 'Rawr!' };
+const SOUND = { '🐮': 'sound_moo', '🐑': 'sound_baa', '🐶': 'sound_woof', '🐕': 'sound_woof', '🐱': 'sound_meow', '🐈': 'sound_meow', '🐸': 'sound_ribbit', '🐦': 'sound_tweet', '🦆': 'sound_quack', '🐫': 'sound_grunt', '🐧': 'sound_squawk', '🦌': 'sound_snort', '🐰': 'sound_boing', '🦀': 'sound_snip', '🐙': 'sound_bloop', '🐠': 'sound_blub', '🐢': 'sound_hello', '🦎': 'sound_hiss', '🐍': 'sound_hiss', '🐀': 'sound_squeak', '🐻‍❄️': 'sound_rawr' };
 const rng = (n) => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
 
 export function entityFor(slot) {
@@ -165,7 +166,7 @@ export function renderDrive({ root, show, params }) {
         setTimeout(() => { if (e.el.parentNode) e.el.remove(); }, 650);
       }
     });
-    speak(nearest ? (SOUND[nearest.data.emoji] || 'Beep beep!') : 'Beep beep!');
+    speak(line(nearest ? (SOUND[nearest.data.emoji] || 'honk_beep') : 'honk_beep'));
   }
   root.querySelector('.ctl.honk').addEventListener('pointerdown', (e) => { e.preventDefault(); honk(); });
   root.querySelector('#garage').addEventListener('pointerdown', openGarage);
@@ -302,7 +303,7 @@ export function renderDrive({ root, show, params }) {
     ov.querySelector('#g-done').addEventListener('pointerdown', () => ov.remove());
   }
 
-  speak('Drive your car!');
+  speak(line('drive_start'));
   root.__drive = { state, tick: (dt) => { stepDrive(state, dt); apply(dt); }, setDir, honk, collected: () => coins, entities };
 }
 

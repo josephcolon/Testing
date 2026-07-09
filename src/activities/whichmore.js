@@ -6,6 +6,7 @@
 
 import { distinctInts, shuffle, randInt } from '../game/round.js';
 import { makeSingle } from '../game/single.js';
+import { line } from '../content/lines.js';
 
 export const id = 'whichmore';
 
@@ -20,7 +21,7 @@ export function create(theme, count) {
   }
   const max = Math.max(...counts);
   const items = shuffle(counts.map((n) => ({ html: group(theme, n), correct: n === max })));
-  return makeSingle({ text: 'Which has more?', speechTokens: ['which_more'], icon: '🤔' }, items);
+  return makeSingle({ text: line('which_more'), speechTokens: ['which_more'], icon: '🤔' }, items);
 }
 
 function group(theme, n) {

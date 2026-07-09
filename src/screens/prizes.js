@@ -9,6 +9,7 @@ import { getProfiles, getProfile, getCoins, spendCoins, addCoins, addPrize } fro
 import { THEMES } from '../themes.js';
 import { burst } from '../ui/confetti.js';
 import { themeSounds, speak } from '../audio.js';
+import { line } from '../content/lines.js';
 
 const COST = 5;
 export const PRIZES = [
@@ -65,7 +66,7 @@ export function renderPrizes({ root, show, params }) {
     addPrize(p.id, key);
     themeSounds(theme.id).win();
     burst({ x: 0.5, y: 0.4, count: 160 });
-    speak(isNew ? 'A new prize!' : 'You got a prize!');
+    speak(line(isNew ? 'ui_new_prize' : 'ui_got_prize'));
 
     const overlay = document.createElement('div');
     overlay.className = 'reward';
@@ -75,7 +76,7 @@ export function renderPrizes({ root, show, params }) {
   }
 
   draw();
-  speak('Open a prize!');
+  speak(line('ui_open_prize'));
 }
 
 function escapeHtml(s) {

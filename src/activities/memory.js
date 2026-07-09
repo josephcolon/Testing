@@ -6,6 +6,7 @@
 
 import { COLORS } from '../themes.js';
 import { sample, shuffle, layoutGrid } from '../game/round.js';
+import { line } from '../content/lines.js';
 
 export const id = 'memory';
 
@@ -21,7 +22,7 @@ export function create(theme, count) {
 
   let first = null, busy = false, matched = 0;
   return {
-    prompt: { text: 'Find the matching pairs!', speechTokens: ['match'], icon: '🧩' },
+    prompt: { text: line('match'), speechTokens: ['match'], icon: '🧩' },
     mount(b, api) {
       layoutGrid(b, cards.length);
       b.innerHTML = '';

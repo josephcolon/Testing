@@ -7,6 +7,7 @@
 import { SHAPES, EASY_SHAPES, COLORS, shapeSVG } from '../themes.js';
 import { sample, shuffle, randInt } from '../game/round.js';
 import { makeSingle } from '../game/single.js';
+import { line } from '../content/lines.js';
 
 export const id = 'shadowmatch';
 
@@ -20,7 +21,7 @@ export function create(theme, count) {
   );
   return makeSingle(
     {
-      text: 'Which one fits the shadow?',
+      text: line('shadow'),
       speechTokens: ['shadow'],
       icon: `<span class="prompt-shape">${shapeSVG(target, '#2b2d5c')}</span>`,
     },

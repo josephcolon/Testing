@@ -6,6 +6,7 @@
 
 import { COLORS } from '../themes.js';
 import { sample, shuffle, layoutGrid, choiceButton } from '../game/round.js';
+import { line } from '../content/lines.js';
 
 export const id = 'pop';
 
@@ -14,7 +15,7 @@ export function create(theme, count) {
   const colors = shuffle(Array.from({ length: n }, (_, i) => sample(COLORS, 1)[0].hex));
   let board, popped = 0;
   return {
-    prompt: { text: 'Pop them all!', speechTokens: ['pop'], icon: '🫧' },
+    prompt: { text: line('pop'), speechTokens: ['pop'], icon: '🫧' },
     mount(b, api) {
       board = b;
       layoutGrid(b, n);

@@ -156,7 +156,7 @@ export const THEMES = {
     hero: truckSVG,
     nounSingular: 'truck',
     nounPlural: 'trucks',
-    praise: ['Honk honk! Great job!', 'Beep beep! You got it!', 'Great driving!', 'Vroom! Amazing!', 'Awesome, driver!'],
+    praise: ['praise_trucks_1', 'praise_trucks_2', 'praise_trucks_3', 'praise_trucks_4', 'praise_trucks_5'], // -> src/content/lines.js
     stickerSet: ['🚚', '🚒', '🚜', '🚛', '🏗️', '🚦', '⭐', '🔧'],
   },
   unicorns: {
@@ -170,7 +170,7 @@ export const THEMES = {
     hero: unicornSVG,
     nounSingular: 'unicorn',
     nounPlural: 'unicorns',
-    praise: ['Magical!', 'Sparkly! Great job!', 'Unicorn magic!', 'Amazing! So sparkly!', 'You got it!'],
+    praise: ['praise_unicorns_1', 'praise_unicorns_2', 'praise_unicorns_3', 'praise_unicorns_4', 'praise_unicorns_5'], // -> src/content/lines.js
     stickerSet: ['🦄', '🌈', '✨', '🧁', '🌸', '👑', '💖', '⭐'],
   },
 };
